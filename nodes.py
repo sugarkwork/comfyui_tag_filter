@@ -16,13 +16,20 @@ def get_tag_category(version=1):
         if not tag_category2:
             tag_category2 = json.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"tag_category_v2.json")))
         return tag_category2
-    
+
+
+def format_category(categories: str) -> list:
+    return [category.lower().strip().replace(" ", "_") for category in categories.replace("\n",",").replace(".",",").split(",")]
+
 
 class TagData:
     def __init__(self, tag, weight):
         self.tag = tag
         self.weight = weight
         self.format = tag.lower().strip().replace(' ', '_')
+    
+    def get_categores(self):
+        return get_tag_category(2).get(self.format, [])
     
     def __str__(self):
         return self.format
@@ -50,7 +57,7 @@ class TagData:
         return tag_text
 
 
-def parse_tags(tag_string) -> list:
+def parse_tags(tag_string) -> list[TagData]:
     def clean_tag(tag):
         # Remove any leading/trailing whitespace and parentheses
         tag = tag.strip()
@@ -397,6 +404,7 @@ class TagSelector:
                 "categorys": ("STRING", {"default": "*"}),
                 "exclude" : ("BOOLEAN", {"default": False}),
                 "whitelist_only": ("BOOLEAN", {"default": False}),
+                "flexible_filter": ("BOOLEAN", {"default": False}),
             },
         }
 
@@ -409,34 +417,68 @@ class TagSelector:
 
     OUTPUT_NODE = True
 
-    def tag(self, tags:str, categorys:str, exclude:bool=False, whitelist_only:bool=False):
+    def tag(self, tags:str, categorys:str, exclude:bool=False, whitelist_only:bool=False, flexible_filter:bool=False):
         tag_list = parse_tags(tags)
         tag_category = get_tag_category(2)
-        target_category = [category.strip() for category in categorys.replace("\n",",").replace(".",",").split(",")]
+        target_category = format_category(categorys)
 
         result = []
         for i, tag in enumerate(tag_list):
             tag_text = tag.format
-            if tag_text in tag_category:
+            tag_text_alt = None
+
+            if flexible_filter and tag_text not in tag_category:
+                org_tag_text = tag_text
+                    
+                while tag_text_alt is None:
+                    tag_text_split = org_tag_text.split("_")
+                    del tag_text_split[0]
+                    org_tag_text = " ".join(tag_text_split).strip().replace(" ", "_")
+
+                    #print("org_tag_text", f"{tag_text} -> {org_tag_text}")
+
+                    if not org_tag_text:
+                        tag_text_alt = None
+                        break
+                    
+                    if tag_category.get(org_tag_text, None):
+                        tag_text_alt = org_tag_text
+                        break
+            else:
+                tag_text_alt = None
+
+            #print("tag_text_alt", f"{tag_text} == {tag_text_alt}")
+
+            if (tag_text in tag_category) or (flexible_filter and tag_text_alt and tag_text_alt in tag_category):
                 if '*' == categorys:
                     result.append(tag)
                     continue
+                
+                category_list = tag_category.get(tag_text, tag_category.get(tag_text_alt, []))
+                #print("    category_list", category_list)
 
-                category_list = tag_category.get(tag_text, [])
-
+                tag_is_taget_category = False
                 for category in category_list:
+                    if category in target_category:
+                        tag_is_taget_category = True
+                        break
+                #print(f"        tag_is_taget_category tag={tag} in={tag_is_taget_category}")
+                if tag_is_taget_category:
                     if exclude:
-                        if category not in target_category:
-                            result.append(tag)
-                            break
+                        continue
                     else:
-                        if category in target_category:
-                            result.append(tag)
-                            break
+                        result.append(tag)
+                else:
+                    if exclude:
+                        result.append(tag)
+                    else:
+                        continue
             else:
+                #print("    without category", tag)
                 if whitelist_only:
                     continue
-                result.append(tag)
+                else:
+                    result.append(tag)
 
         return (tagdata_to_string(result),)
 
@@ -531,10 +573,10 @@ class TagFilter:
         
         include_categories = include_categories.strip()
         if include_categories:
-            targets += [category.strip() for category in include_categories.replace("\n",",").split(",")]
+            targets += format_category(include_categories)
 
         if exclude_categories:
-            exclude_targets = [category.strip() for category in exclude_categories.replace("\n",",").split(",")]
+            exclude_targets = format_category(exclude_categories)
             targets = [target for target in targets if target not in exclude_targets]
         
         tag_list = parse_tags(tags)
@@ -568,6 +610,85 @@ class TagFilter:
         return (tagdata_to_string(result),)
 
 
+
+class TagEnhance:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tags": ("STRING", ),
+                "enhance_tags": ("STRING", ),
+                "strength": ("FLOAT", {"default": 1.2, "min": 0, "max": 5.0, "step": 0.05}),
+                "add_strength": ("BOOLEAN", {"default": False}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("result",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tags:str, enhance_tags:str, strength:float=1.2, add_strength:bool=False):
+        tag_list = parse_tags(tags)
+        enhance_tag_list = parse_tags(enhance_tags)
+
+        result = []
+        for i, tag in enumerate(tag_list):
+            if tag in enhance_tag_list:
+                if add_strength:
+                    tag.weight += strength
+                else:
+                    tag.weight = strength
+            result.append(tag)
+        
+        return (tagdata_to_string(result),)
+
+
+class TagCategoryEnhance:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tags": ("STRING", ),
+                "enhance_category": ("STRING", ),
+                "strength": ("FLOAT", {"default": 1.2, "min": -5.0, "max": 5.0, "step": 0.05}),
+                "add_strength": ("BOOLEAN", {"default": False}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("result",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tags:str, enhance_category:str, strength:float=1.2, add_strength:bool=False):
+        tag_list = parse_tags(tags)
+        categories = format_category(enhance_category)
+
+        result = []
+        for i, tag in enumerate(tag_list):
+            tag_category = tag.get_categores()
+            if tag_category and any(c in tag_category for c in categories):
+                if add_strength:
+                    tag.weight += strength
+                else:
+                    tag.weight = strength
+            result.append(tag)
+        
+        return (tagdata_to_string(result),)
+
+
+
 NODE_CLASS_MAPPINGS = {
     "TagSwitcher": TagSwitcher,
     "TagMerger": TagMerger,
@@ -576,7 +697,9 @@ NODE_CLASS_MAPPINGS = {
     "TagRemover": TagRemover,
     "TagIf": TagIf,
     "TagSelector": TagSelector,
-    "TagComparator": TagComparator
+    "TagComparator": TagComparator,
+    "TagEnhance": TagEnhance,
+    "TagCategoryEnhance": TagCategoryEnhance
 }
 
 
@@ -588,7 +711,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagRemover": "TagRemover",
     "TagIf": "TagIf",
     "TagSelector": "TagSelector",
-    "TagComparator": "TagComparator"
+    "TagComparator": "TagComparator",
+    "TagEnhance": "TagEnhance",
+    "TagCategoryEnhance": "TagCategoryEnhance"
 }
 
 
@@ -681,8 +806,8 @@ def simple_test():
     
     ts = TagSelector()
     result = ts.tag(tags=sample_tags, 
-                 categorys="pose", 
-                 whitelist_only=True)
+                    categorys="pose", 
+                    whitelist_only=True)
     print("@@@ tagselector1 whitelist", result)
     if '(v:1.2), (sitting:1.5), (standing:0.5), attack' != result[0]:
         raise Exception("Test failed")
@@ -699,7 +824,7 @@ def simple_test():
                  exclude=True,
                  whitelist_only=True)
     print("@@@ tagselector3 whitelist exclude", result)
-    if 'school_uniform, (long hair:1.2), (v:1.2), (sitting:1.5), (standing:0.5), attack, (1girl:1.2)' != result[0]:
+    if 'school_uniform, (long hair:1.2), (1girl:1.2)' != result[0]:
         raise Exception("Test failed")
     
     result = ts.tag(tags=sample_tags, 
@@ -707,8 +832,52 @@ def simple_test():
                  exclude=True,
                  whitelist_only=False)
     print("@@@ tagselector3 no whitelist exclude", result)
-    if 'school_uniform, (long hair:1.2), (v:1.2), (sitting:1.5), (standing:0.5), attack, (1girl:1.2), original_tag' != result[0]:
+    if 'school_uniform, (long hair:1.2), (1girl:1.2), original_tag' != result[0]:
         raise Exception("Test failed")
+    
+    hair_tags = "1girl, long hair, lovery twintails, white long twintails, original tag x, (hoge short hair:1.5)"
+
+    result = ts.tag(tags=hair_tags,
+                    categorys="hair_style",
+                    exclude=False,
+                    whitelist_only=True,
+                    flexible_filter=True)
+    
+    print("@@@ tagselector4 hair_style", result)
+    if 'long hair, lovery twintails, white long twintails, (hoge short hair:1.5)' != result[0]:
+        raise Exception("Test failed")
+    
+    result = ts.tag(tags=hair_tags,
+                    categorys="hair style",
+                    exclude=False,
+                    whitelist_only=True,
+                    flexible_filter=False)
+    
+    print("@@@ tagselector5 hair_style", result)
+    if 'long hair' != result[0]:
+        raise Exception("Test failed")
+    
+    result = ts.tag(tags=hair_tags,
+                    categorys="hair_style",
+                    exclude=False,
+                    whitelist_only=False,
+                    flexible_filter=True)
+    
+    print("@@@ tagselector6 hair_style", result)
+    if 'long hair, lovery twintails, white long twintails, (hoge short hair:1.5)' != result[0]:
+        raise Exception("Test failed")
+    
+    result = ts.tag(tags=hair_tags,
+                    categorys="hair_style",
+                    exclude=True,
+                    whitelist_only=False,
+                    flexible_filter=True)
+    
+    print("@@@ tagselector7 hair_style", result)
+    if '1girl, original tag x' != result[0]:
+        raise Exception("Test failed")
+
+
     
     tc = TagComparator()
     result = tc.tag(tags1=sample_tags, 
@@ -727,6 +896,45 @@ def simple_test():
     print("@@@ tagremover1", result)
     if '(v:1.2), (sitting:1.5), (standing:0.5), attack, original_tag' != result[0]:
         raise Exception("Test failed")
+    
+    print("sample_tags", sample_tags)
+
+    te = TagEnhance()
+    result = te.tag(tags=sample_tags, 
+                    enhance_tags="school_uniform, long hair, 1girl", 
+                    strength=0.5, 
+                    add_strength=True)
+    print("@@@ tagenhance1 add", result)
+    if '(school_uniform:1.5), (long hair:1.7), (v:1.2), (sitting:1.5), (standing:0.5), attack, (1girl:1.7), original_tag' != result[0]:
+        raise Exception("Test failed")
+    
+    te = TagEnhance()
+    result = te.tag(tags=sample_tags, 
+                    enhance_tags="school_uniform, long hair, 1girl", 
+                    strength=0.5, 
+                    add_strength=False)
+    print("@@@ tagenhance2 set", result)
+    if '(school_uniform:0.5), (long hair:0.5), (v:1.2), (sitting:1.5), (standing:0.5), attack, (1girl:0.5), original_tag' != result[0]:
+        raise Exception("Test failed")
+    
+    tce = TagCategoryEnhance()
+    result = tce.tag(tags=sample_tags, 
+                     enhance_category="pose", 
+                     strength=0.5, 
+                     add_strength=True)
+    print("@@@ tagcategoryenhance1 add", result)
+    if 'school_uniform, (long hair:1.2), (v:1.7), (sitting:2.0), standing, (attack:1.5), (1girl:1.2), original_tag' != result[0]:
+        raise Exception("Test failed")
+    
+    result = tce.tag(tags=sample_tags, 
+                     enhance_category="pose", 
+                     strength=0.5, 
+                     add_strength=False)
+    print("@@@ tagcategoryenhance2 add", result)
+    if 'school_uniform, (long hair:1.2), (v:0.5), (sitting:0.5), (standing:0.5), (attack:0.5), (1girl:1.2), original_tag' != result[0]:
+        raise Exception("Test failed")
+    
+
 
 
 #if __name__ == "__main__":
