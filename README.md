@@ -60,3 +60,36 @@ TagSwitcher では入力タグに基づいて、その物が画像内に含ま�
 
 ![image](https://github.com/user-attachments/assets/fb3d5fc7-b6fb-4e2a-9b5d-4d210935ab56)
 
+# TagSelector
+
+タグをカテゴリで指定、あるいは指定したカテゴリのタグだけ除外します。exclude が False で選択。exclude が True で指定したカテゴリを除外します。
+
+ホワイトリストのオプションは、タグの中でも「tag_category.json」に記載があるタグのみを許可して、不明なタグを削除します。
+
+フレキシブルフィルターは、例えば「crasy long hair」という謎のタグを使用した場合でも、自動的にこれを「long hair」であると認識して「long hair」のカテゴリである「hair style」にマッチさせて、タグの認識を柔軟に処理します。
+
+![Image](https://github.com/user-attachments/assets/15dd8dec-f9db-4b1a-bac6-bf14dee5a43d)
+
+# TagEnhance / TagCategoryEnhance
+
+タグを、指定されたタグに関して、タグの強度を追加あるいは置き換えします。
+
+TagCategoryEnhance は、タグの強度の調整の際にタグではなくタグのカテゴリを指定して、強度の追加あるいは置き換えを行います。
+
+![Image](https://github.com/user-attachments/assets/cdc18942-27a7-4864-8e13-1259cf84ac4a)
+
+# TagIf
+
+特定のタグが含まれる場合に、output1, 2, 3 に設定した文字列を出力します。
+
+例えば、特定のタグの条件下でポジティブタグ、ネガティブタグを出力するなどの使い方が出来ます。
+
+![Image](https://github.com/user-attachments/assets/712a0310-7d1e-4842-8fb3-c9813c08b947)
+
+# TagComparator
+
+2つのタグ群を比較して、タグ１だけのタグ、タグ２だけのタグ、共通のタグを出します。
+
+何に使うのかは分かりません。
+
+![Image](https://github.com/user-attachments/assets/52c5a31d-33cf-4071-8a17-23b76962c98d)
