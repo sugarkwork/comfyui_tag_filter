@@ -392,6 +392,29 @@ class TagReplace:
         return (", ".join(result),)
 
 
+def tag_flexible_category(tag_text:str, tag_category:dict):
+    org_tag_text = tag_text
+    tag_text_alt = None
+
+    if tag_text in tag_category:
+        return tag_text
+        
+    while tag_text_alt is None:
+        tag_text_split = org_tag_text.split("_")
+        del tag_text_split[0]
+        org_tag_text = " ".join(tag_text_split).strip().replace(" ", "_")
+
+        if not org_tag_text:
+            tag_text_alt = None
+            break
+        
+        if tag_category.get(org_tag_text, None):
+            tag_text_alt = org_tag_text
+            break
+    
+    return tag_text_alt
+
+
 class TagSelector:
     def __init__(self):
         pass
@@ -428,22 +451,7 @@ class TagSelector:
             tag_text_alt = None
 
             if flexible_filter and tag_text not in tag_category:
-                org_tag_text = tag_text
-                    
-                while tag_text_alt is None:
-                    tag_text_split = org_tag_text.split("_")
-                    del tag_text_split[0]
-                    org_tag_text = " ".join(tag_text_split).strip().replace(" ", "_")
-
-                    #print("org_tag_text", f"{tag_text} -> {org_tag_text}")
-
-                    if not org_tag_text:
-                        tag_text_alt = None
-                        break
-                    
-                    if tag_category.get(org_tag_text, None):
-                        tag_text_alt = org_tag_text
-                        break
+                tag_text_alt = tag_flexible_category(tag_text, tag_category)
             else:
                 tag_text_alt = None
 
@@ -688,6 +696,49 @@ class TagCategoryEnhance:
         return (tagdata_to_string(result),)
 
 
+class TagCategory:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tags": ("STRING", {"default": ""}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("categories",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tags:str, flexible_filter:bool=False):
+        if not tags:
+            return ("",)
+
+        tag_list = parse_tags(tags)
+        tag_category = get_tag_category(2)
+        
+        result = []
+        for tag in tag_list:
+            tag_text = tag.format
+            category = []
+            if flexible_filter:
+                flex_tag_text = tag_flexible_category(tag_text, tag_category)
+                if flex_tag_text:
+                    category = tag_category.get(flex_tag_text, [])
+            else:
+                category = tag_category.get(tag_text, [])
+            result.extend(category)
+        
+        result = sorted(list(set(result)))
+
+        return (", ".join(result),)
+
+
 
 NODE_CLASS_MAPPINGS = {
     "TagSwitcher": TagSwitcher,
@@ -699,7 +750,8 @@ NODE_CLASS_MAPPINGS = {
     "TagSelector": TagSelector,
     "TagComparator": TagComparator,
     "TagEnhance": TagEnhance,
-    "TagCategoryEnhance": TagCategoryEnhance
+    "TagCategoryEnhance": TagCategoryEnhance,
+    "TagCategory": TagCategory
 }
 
 
@@ -713,7 +765,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagSelector": "TagSelector",
     "TagComparator": "TagComparator",
     "TagEnhance": "TagEnhance",
-    "TagCategoryEnhance": "TagCategoryEnhance"
+    "TagCategoryEnhance": "TagCategoryEnhance",
+    "TagCategory": "TagCategory"
 }
 
 
@@ -934,7 +987,12 @@ def simple_test():
     if 'school_uniform, (long hair:1.2), (v:0.5), (sitting:0.5), (standing:0.5), (attack:0.5), (1girl:1.2), original_tag' != result[0]:
         raise Exception("Test failed")
     
-
+    test_tags = "1girl, long hair"
+    tc = TagCategory()
+    result = tc.tag(tags=test_tags)
+    print("@@@ tagcategory", result)
+    if 'camera_subject' not in result[0] and 'hair_style' not in result[0] and 'hair' not in result[0] and 'gender' not in result[0]:
+        raise Exception("Test failed")
 
 
 #if __name__ == "__main__":
