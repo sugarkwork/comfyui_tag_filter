@@ -163,16 +163,20 @@ class TagIf:
             "required": {
                 "tags": ("STRING", ),
                 "find": ("STRING", {"default": ""}),
+                "anytag": ("BOOLEAN", {"default": True}),
                 "output1": ("STRING", {"default": ""}),
             },
             "optional": {
                 "output2": ("STRING", {"default": ""}),
                 "output3": ("STRING", {"default": ""}),
+                "else_output1": ("STRING", {"default": ""}),
+                "else_output2": ("STRING", {"default": ""}),
+                "else_output3": ("STRING", {"default": ""}),
             }
         }
 
-    RETURN_TYPES = ("STRING","STRING","STRING",)
-    RETURN_NAMES = ("output1","output2","output3",)
+    RETURN_TYPES = ("STRING","STRING","STRING","STRING","STRING","STRING",)
+    RETURN_NAMES = ("output1","output2","output3","else_output1","else_output2","else_output3",)
 
     FUNCTION = "tag"
 
@@ -180,13 +184,20 @@ class TagIf:
 
     OUTPUT_NODE = True
 
-    def tag(self, tags:str, find:str, output1:str, output2:str=None, output3:str=None):
+    def tag(self, tags:str, find:str, anytag:bool=True, output1:str="", output2:str="", output3:str="", else_output1:str="", else_output2:str="", else_output3:str=""):
         tags = parse_tags(tags)
         find = parse_tags(find)
-        if all(tag in tags for tag in find):
-            return (output1, output2, output3)
+
+        tagin = False
+        if anytag:
+            tagin = any(tag in tags for tag in find)
         else:
-            return ("", "", "")
+            tagin = all(tag in tags for tag in find)
+
+        if tagin:
+            return (output1, output2, output3, "", "", "")
+        else:
+            return ("", "", "", else_output1, else_output2, else_output3)
 
 
 
@@ -862,6 +873,26 @@ def simple_test():
                  output1="found")
     print("@@@ tagif uniform not found", result)
     if '' != result[0]:
+        raise Exception("Test failed")
+    
+    result = ti.tag(tags=sample_tags,
+                    find="school_uniform, very long hair",
+                    anytag=False,
+                    output1="uniform and long hair found",
+                    else_output1="not found")
+
+    print("@@@ tagif uniform and long hair", result)
+    if 'not found' != result[3]:
+        raise Exception("Test failed")
+    
+    result = ti.tag(tags=sample_tags,
+                    find="school_uniform, very long hair",
+                    anytag=True,
+                    output1="uniform or very long hair found",
+                    else_output1="not found")
+
+    print("@@@ tagif uniform and long hair", result)
+    if 'uniform or very long hair found' != result[0]:
         raise Exception("Test failed")
     
     ts = TagSwitcher()
