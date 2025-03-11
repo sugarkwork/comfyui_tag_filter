@@ -740,6 +740,55 @@ class TagCategory:
 
 
 
+class TagWildcardFilter:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tags": ("STRING", ),
+                "wildcard": ("STRING", {"default": ""}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("tags",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tags:str, wildcard:str):
+        if not tags or not wildcard:
+            return (tags,)
+        
+        tag_list = parse_tags(tags)
+        
+        wildcard = wildcard.lower().strip().replace(' ', '_')
+
+        regex_on = False
+        if '*' in wildcard:
+            wildcard = wildcard.replace('*', '.*')
+            wildcard = f"^{wildcard}$"
+            regex_on = True
+            import re
+
+        result = []
+        for tag in tag_list:
+            if regex_on:
+                if re.match(wildcard, tag.format):
+                    result.append(tag)
+            else:    
+                if wildcard in tag.format:
+                    result.append(tag)
+        
+        return (tagdata_to_string(result),)
+
+
+
+
 NODE_CLASS_MAPPINGS = {
     "TagSwitcher": TagSwitcher,
     "TagMerger": TagMerger,
@@ -751,7 +800,8 @@ NODE_CLASS_MAPPINGS = {
     "TagComparator": TagComparator,
     "TagEnhance": TagEnhance,
     "TagCategoryEnhance": TagCategoryEnhance,
-    "TagCategory": TagCategory
+    "TagCategory": TagCategory,
+    "TagWildcardFilter": TagWildcardFilter
 }
 
 
@@ -766,7 +816,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagComparator": "TagComparator",
     "TagEnhance": "TagEnhance",
     "TagCategoryEnhance": "TagCategoryEnhance",
-    "TagCategory": "TagCategory"
+    "TagCategory": "TagCategory",
+    "TagWildcardFilter": "TagWildcardFilter"
 }
 
 
@@ -993,6 +1044,27 @@ def simple_test():
     print("@@@ tagcategory", result)
     if 'camera_subject' not in result[0] and 'hair_style' not in result[0] and 'hair' not in result[0] and 'gender' not in result[0]:
         raise Exception("Test failed")
+    
+    twf = TagWildcardFilter()
+    result = twf.tag(tags=sample_tags, wildcard="long*")
+    print("@@@ tagwildcardfilter1", result)
+    if '(long hair:1.2)' != result[0]:
+        raise Exception("Test failed")
+    
+    result = twf.tag(tags=sample_tags, wildcard="*uniform")
+    print("@@@ tagwildcardfilter2", result)
+    if 'school_uniform' != result[0]:
+        raise Exception("Test failed")
+    
+    looking_tags = "(looking at viewer:1.2), looking back, looking back at viewer, looking at another, looking at camera"
+    custom_tags = looking_tags + ", " + sample_tags
+    print("data", custom_tags)
+
+    result = twf.tag(tags=custom_tags, wildcard="looking *")
+    print("@@@ tagwildcardfilter3", result)
+    if looking_tags != result[0]:
+        raise Exception("Test failed")
+
 
 
 #if __name__ == "__main__":
