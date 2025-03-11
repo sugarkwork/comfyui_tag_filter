@@ -80,11 +80,14 @@ TagCategoryEnhance は、タグの強度の調整の際にタグではなくタ�
 
 # TagIf
 
-特定のタグが含まれる場合に、output1, 2, 3 に設定した文字列を出力します。
+特定のタグが含まれる場合に、output1, 2, 3 に設定した文字列を出力し、含まれない場合に else_output1, 2, 3 が出力されます。
 
 例えば、特定のタグの条件下でポジティブタグ、ネガティブタグを出力するなどの使い方が出来ます。
 
-![Image](https://github.com/user-attachments/assets/712a0310-7d1e-4842-8fb3-c9813c08b947)
+anytag に True を指定すると、いずれかのタグが含まれる場合に True になり、False にすると、全てのタグが含まれる場合にのみ True になります。
+
+![image](https://github.com/user-attachments/assets/25bf3b9b-2056-46cd-94e5-997d7fa7051e)
+
 
 # TagComparator
 
