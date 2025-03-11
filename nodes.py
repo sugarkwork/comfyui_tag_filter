@@ -1064,7 +1064,11 @@ def simple_test():
     print("@@@ tagwildcardfilter3", result)
     if looking_tags != result[0]:
         raise Exception("Test failed")
-
+    
+    result = twf.tag(tags=custom_tags, wildcard="l*k")
+    print("@@@ tagwildcardfilter4", result)
+    if 'looking back' != result[0]:
+        raise Exception("Test failed")
 
 
 #if __name__ == "__main__":
