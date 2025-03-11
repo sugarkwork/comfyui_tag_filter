@@ -93,3 +93,15 @@ TagCategoryEnhance は、タグの強度の調整の際にタグではなくタ�
 何に使うのかは分かりません。
 
 ![Image](https://github.com/user-attachments/assets/52c5a31d-33cf-4071-8a17-23b76962c98d)
+
+# TagWildcardFilter
+
+タグをワイルドカード（* ← このアスタリスク）でフィルタリングします。
+
+例えば、wildcard に *hair と指定すると、long_hair や　short_hair がヒットします。
+
+逆に hair* とすると、hair_ornament のようなものだけをフィルタリング出来ます。
+
+アスタリスクを含めない場合は、タグの文字列の中のどこかに含まれる場合、つまり \*hair\* を指定した事と同じになります。
+
+![image](https://github.com/user-attachments/assets/d947b63a-2857-403a-b203-74eff3217d8a)
