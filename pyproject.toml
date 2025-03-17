@@ -1,7 +1,7 @@
 [project]
 name = "comfyui_tag_fillter"
 description = "This is a custom node of ComfyUI that categorizes tags outputted by tools like WD14Tagger, filters them by each category, and returns the filtered results."
-version = "1.0.4"
+version = "1.0.5"
 license = { file = "LICENSE" }
 dependencies = []
 

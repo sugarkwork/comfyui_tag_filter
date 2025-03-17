@@ -175,8 +175,8 @@ class TagIf:
             }
         }
 
-    RETURN_TYPES = ("STRING","STRING","STRING","STRING","STRING","STRING",)
-    RETURN_NAMES = ("output1","output2","output3","else_output1","else_output2","else_output3",)
+    RETURN_TYPES = ("STRING","STRING","STRING","STRING","STRING","STRING","BOOLEAN")
+    RETURN_NAMES = ("output1","output2","output3","else_output1","else_output2","else_output3","tagin")
 
     FUNCTION = "tag"
 
@@ -195,9 +195,9 @@ class TagIf:
             tagin = all(tag in tags for tag in find)
 
         if tagin:
-            return (output1, output2, output3, "", "", "")
+            return (output1, output2, output3, "", "", "", True)
         else:
-            return ("", "", "", else_output1, else_output2, else_output3)
+            return ("", "", "", else_output1, else_output2, else_output3, False)
 
 
 

@@ -65,6 +65,7 @@ class TestTagNodes(unittest.TestCase):
             output1="sitting found"
         )
         self.assertEqual('sitting found', result[0])
+        self.assertTrue(result[6])
         
         # 存在しないタグを検索するテスト
         result = ti.tag(
@@ -73,6 +74,7 @@ class TestTagNodes(unittest.TestCase):
             output1="found"
         )
         self.assertEqual('', result[0])
+        self.assertFalse(result[6])
         
         # 複数タグの全一致（anytag=False）テスト
         result = ti.tag(
@@ -83,6 +85,7 @@ class TestTagNodes(unittest.TestCase):
             else_output1="not found"
         )
         self.assertEqual('not found', result[3])
+        self.assertFalse(result[6])
         
         # 複数タグの部分一致（anytag=True）テスト
         result = ti.tag(
@@ -93,6 +96,7 @@ class TestTagNodes(unittest.TestCase):
             else_output1="not found"
         )
         self.assertEqual('uniform or very long hair found', result[0])
+        self.assertTrue(result[6])
 
     def test_tag_switcher(self):
         ts = TagSwitcher()
