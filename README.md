@@ -16,7 +16,7 @@ include_categories に expression と入力すると、上のチェックボッ�
 
 exclude_categories は逆に取り除きたいカテゴリを指定できます。服のタグだけ取りたいが色の指定は不要な場合に、include_categories に cloth と入れて、exclude_categories に color と打ちます。
 
-何がどのカテゴリに分類されているかは、[tag_category.json](https://github.com/sugarkwork/comfyui_tag_fillter/blob/main/tag_category.json) を見て確認してください。
+何がどのカテゴリに分類されているかは、[tag_category_v2.json](tag_category_v2.json) を見て確認してください。
 
 tag_category.json は AI により自動仕分けされた、タグのカテゴリ分けファイルです。誤った内容が含まれる場合もあります（細々と手動で調整を進めています）
 
