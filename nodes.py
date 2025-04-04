@@ -57,7 +57,15 @@ class TagData:
         return tag_text
 
 
-def parse_tags(tag_string) -> list[TagData]:
+def parse_tags(tag_string:str) -> list[TagData]:
+    if tag_string is None:
+        return []
+    if not tag_string:
+        return []
+    tag_string = tag_string.strip()
+    if not tag_string:
+        return []
+
     def clean_tag(tag):
         # Remove any leading/trailing whitespace and parentheses
         tag = tag.strip()
@@ -271,11 +279,11 @@ class TagMerger:
     @classmethod
     def INPUT_TYPES(s):
         return {
-            "required": {
+            "optional": {
                 "tags1": ("STRING",),
                 "tags2": ("STRING",),
                 "under_score": ("BOOLEAN", {"default": True}),
-            },
+            }
         }
 
     RETURN_TYPES = ("STRING",)
@@ -287,11 +295,50 @@ class TagMerger:
 
     OUTPUT_NODE = True
 
-    def tag(self, tags1:str, tags2:str, under_score=True):
+    def tag(self, tags1:str=None, tags2:str=None, under_score=True):
+        if tags1 is None:
+            tags1 = ""
+        if tags2 is None:
+            tags2 = ""
         taglist1 = parse_tags(tags1)
         taglist2 = parse_tags(tags2)
 
         tags = remove_duplicates(taglist1 + taglist2)
+
+        return (tagdata_to_string(tags, underscore=under_score),)
+
+class TagMerger4:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "optional": {
+                "tags1": ("STRING",),
+                "tags2": ("STRING",),
+                "tags3": ("STRING",),
+                "tags4": ("STRING",),
+                "under_score": ("BOOLEAN", {"default": True}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("result",)
+
+    FUNCTION = "tag"
+
+    CATEGORY = "text"
+
+    OUTPUT_NODE = True
+
+    def tag(self, tags1:str=None, tags2:str=None, tags3:str=None, tags4:str=None, under_score=True):
+        taglist1 = parse_tags(tags1)
+        taglist2 = parse_tags(tags2)
+        taglist3 = parse_tags(tags3)
+        taglist4 = parse_tags(tags4)
+
+        tags = remove_duplicates(taglist1 + taglist2 + taglist3 + taglist4)
 
         return (tagdata_to_string(tags, underscore=under_score),)
 
