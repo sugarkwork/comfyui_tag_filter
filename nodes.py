@@ -307,6 +307,7 @@ class TagMerger:
 
         return (tagdata_to_string(tags, underscore=under_score),)
 
+
 class TagMerger4:
     def __init__(self):
         pass
@@ -339,6 +340,46 @@ class TagMerger4:
         taglist4 = parse_tags(tags4)
 
         tags = remove_duplicates(taglist1 + taglist2 + taglist3 + taglist4)
+
+        return (tagdata_to_string(tags, underscore=under_score),)
+
+
+class TagMerger6:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "optional": {
+                "tags1": ("STRING",),
+                "tags2": ("STRING",),
+                "tags3": ("STRING",),
+                "tags4": ("STRING",),
+                "tags5": ("STRING",),
+                "tags6": ("STRING",),
+                "under_score": ("BOOLEAN", {"default": True}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("result",)
+
+    FUNCTION = "tag"
+
+    CATEGORY = "text"
+
+    OUTPUT_NODE = True
+
+    def tag(self, tags1:str=None, tags2:str=None, tags3:str=None, tags4:str=None, tags5:str=None, tags6:str=None, under_score=True):
+        taglist1 = parse_tags(tags1)
+        taglist2 = parse_tags(tags2)
+        taglist3 = parse_tags(tags3)
+        taglist4 = parse_tags(tags4)
+        taglist5 = parse_tags(tags5)
+        taglist6 = parse_tags(tags6)
+
+        tags = remove_duplicates(taglist1 + taglist2 + taglist3 + taglist4 + taglist5 + taglist6)
 
         return (tagdata_to_string(tags, underscore=under_score),)
 
@@ -857,7 +898,9 @@ NODE_CLASS_MAPPINGS = {
     "TagEnhance": TagEnhance,
     "TagCategoryEnhance": TagCategoryEnhance,
     "TagCategory": TagCategory,
-    "TagWildcardFilter": TagWildcardFilter
+    "TagWildcardFilter": TagWildcardFilter,
+    "TagMerger4": TagMerger4,
+    "TagMerger6": TagMerger6,
 }
 
 
@@ -873,5 +916,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagEnhance": "TagEnhance",
     "TagCategoryEnhance": "TagCategoryEnhance",
     "TagCategory": "TagCategory",
-    "TagWildcardFilter": "TagWildcardFilter"
+    "TagWildcardFilter": "TagWildcardFilter",
+    "TagMerger4": "TagMerger4",
+    "TagMerger6": "TagMerger6",
 }
