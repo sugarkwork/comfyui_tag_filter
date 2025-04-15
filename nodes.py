@@ -8,13 +8,16 @@ tag_category2 = []
 
 def get_tag_category(version=1):
     global tag_category1, tag_category2
+    code_dir = os.path.dirname(os.path.realpath(__file__))
     if version == 1:
         if not tag_category1:
-            tag_category1 = json.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"tag_category.json")))
+            with open(os.path.join(code_dir, "tag_category.json"), encoding="utf-8-sig") as f: # file encoding is utf-8
+                tag_category1 = json.load(f)
         return tag_category1
     else:
         if not tag_category2:
-            tag_category2 = json.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"tag_category_v2.json")))
+            with open(os.path.join(code_dir, "tag_category_v2.json"), encoding="utf-8-sig") as f: # file encoding is utf-8
+                tag_category2 = json.load(f)
         return tag_category2
 
 
