@@ -30,9 +30,11 @@ class TagData:
         self.tag = tag
         self.weight = weight
         self.format = tag.lower().strip().replace(' ', '_')
+        self.format_escape = escape_tag_special_chars(self.format)
+        self.format_unescape = remove_escape(unescape_tag_special_chars(self.format_escape))
     
     def get_categores(self):
-        return get_tag_category(2).get(self.format, [])
+        return get_tag_category(2).get(self.format_unescape, [])
     
     def __str__(self):
         return self.format
@@ -191,6 +193,9 @@ def unescape_tag_special_chars(s: str) -> str:
     for repl, orig in UNESCAPE_MAP.items():
         s = s.replace(repl, orig)
     return s
+
+def remove_escape(s: str) -> str:
+    return s.replace('\\\\', '\\').replace('\\(', '(').replace('\\)', ')').replace('\\:', ':').replace('\\,', ',')
 
 
 class TagIf:
@@ -578,7 +583,7 @@ class TagSelector:
 
         result = []
         for i, tag in enumerate(tag_list):
-            tag_text = tag.format
+            tag_text = tag.format_unescape
             tag_text_alt = None
 
             if flexible_filter and tag_text not in tag_category:
@@ -724,9 +729,9 @@ class TagFilter:
         tag_category = get_tag_category(2)
 
         for i, tag in enumerate(tag_list):
-            tag_text = tag.format
+            tag_text = tag.format_unescape
             if tag_text in tag_category:
-                category_list = tag_category.get(tag_text, [])
+                category_list = tag_category.get(tag_text, tag_category.get(tag.format_unescape, []))
 
                 if not category_list:
                     continue
@@ -855,7 +860,7 @@ class TagCategory:
         
         result = []
         for tag in tag_list:
-            tag_text = tag.format
+            tag_text = tag.format_unescape
             category = []
             if flexible_filter:
                 flex_tag_text = tag_flexible_category(tag_text, tag_category)
@@ -909,10 +914,10 @@ class TagWildcardFilter:
         result = []
         for tag in tag_list:
             if regex_on:
-                if re.match(wildcard, tag.format):
+                if re.match(wildcard, tag.format_unescape):
                     result.append(tag)
             else:    
-                if wildcard in tag.format:
+                if wildcard in tag.format_unescape:
                     result.append(tag)
         
         return (tagdata_to_string(result),)

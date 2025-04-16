@@ -323,11 +323,39 @@ class TestTagNodes(unittest.TestCase):
 
     
     def test_parse_tags_escape(self):
+        n2b = '2b_\\(nier:automata\\)'
+        n9s = '9s \\(nier\\:automata\\)'
         tag1 = "1girl, 1boy, 2b_\\(nier:automata\\), (9s \\(nier\\:automata\\):1.2)"
         
         tag2 = parse_tags(tag1)
         # tagdata_to_stringはweight=1.0のとき括弧なし、weight!=1.0のとき括弧付き
         self.assertEqual(tag1, tagdata_to_string(tag2))
+        
+        tag3 = parse_tags(n9s)[0]
+        self.assertEqual(n9s.replace('\\', '').replace(' ', '_'), tag3.format_unescape)
+        self.assertEqual(tag3.weight, 1.0)
+
+        tf = TagFilter()
+        result_tags = tf.tag(tag1, include_categories="character")[0]
+        self.assertIn(n2b, result_tags)
+        self.assertIn(n9s, result_tags)
+
+        te = TagEnhance()
+        result_tags = te.tag(tag1, n9s.replace(' ', '_'), 0.5, True)[0]
+        self.assertIn('(9s \\(nier\\:automata\\):1.7)', result_tags)
+
+        result_tags = te.tag(tag1, n9s.replace(' ', '_'), 0.5, False)[0]
+        self.assertIn('(9s \\(nier\\:automata\\):0.5)', result_tags)
+
+        tc = TagCategory()
+        result_tags = tc.tag(tag1)[0]
+        self.assertIn('character', result_tags)
+        self.assertIn('gender', result_tags)
+
+        tce = TagCategoryEnhance()
+        result_tags = tce.tag(tag1, 'character', 0.5, False)[0]
+        self.assertIn('(2b_\\(nier:automata\\):0.5)', result_tags)
+        self.assertIn('(9s \\(nier\\:automata\\):0.5)', result_tags)
 
 
 if __name__ == "__main__":
