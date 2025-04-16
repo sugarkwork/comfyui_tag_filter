@@ -54,6 +54,8 @@ class TagData:
             tag_text = self.format
         if underscore:
             tag_text = tag_text.replace(' ', '_')
+
+        tag_text = unescape_tag_special_chars(tag_text)
         
         if self.weight != 1.0:
             return f"({tag_text}:{self.weight})"
@@ -68,6 +70,9 @@ def parse_tags(tag_string:str) -> list[TagData]:
     tag_string = tag_string.strip()
     if not tag_string:
         return []
+    
+    tag_string = escape_tag_special_chars(tag_string)
+    #print(tag_string)
 
     def clean_tag(tag):
         # Remove any leading/trailing whitespace and parentheses
@@ -84,6 +89,7 @@ def parse_tags(tag_string:str) -> list[TagData]:
                 weight = float(weight_part)
             except ValueError:
                 weight = 1.0
+                tags_part = group
             tags = [t.strip() for t in tags_part.split(',')]
         else:
             tags = [t.strip() for t in group.split(',')]
@@ -162,6 +168,29 @@ def remove_duplicates(lst):
 
 def tagdata_to_string(tags:list[TagData], underscore=False) -> str:
     return ", ".join([tag.text(underscore=underscore) for tag in tags])
+
+
+# エスケープ対象とトークンの対応表
+ESCAPE_MAP = {
+    '\\(':  '__escape_kakko_start__',
+    '\\)':  '__escape_kakko_end__',
+    '\\:':  '__escape_colon__',
+    '\\,':  '__escape_comma__',
+    '\\\\': '__escape_backslash__',  # 最後に展開。二重エスケープ用
+}
+
+UNESCAPE_MAP = {v: k for k, v in ESCAPE_MAP.items()}
+
+def escape_tag_special_chars(s: str) -> str:
+    # バックスラッシュは一番最後に処理するため、順番を工夫
+    for orig, repl in sorted(ESCAPE_MAP.items(), key=lambda x: -len(x[0])):
+        s = s.replace(orig, repl)
+    return s
+
+def unescape_tag_special_chars(s: str) -> str:
+    for repl, orig in UNESCAPE_MAP.items():
+        s = s.replace(repl, orig)
+    return s
 
 
 class TagIf:

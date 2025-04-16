@@ -321,6 +321,14 @@ class TestTagNodes(unittest.TestCase):
         result = twf.tag(tags=self.custom_tags, wildcard="l*k")
         self.assertEqual('looking back', result[0])
 
+    
+    def test_parse_tags_escape(self):
+        tag1 = "1girl, 1boy, 2b_\\(nier:automata\\), (9s \\(nier\\:automata\\):1.2)"
+        
+        tag2 = parse_tags(tag1)
+        # tagdata_to_stringはweight=1.0のとき括弧なし、weight!=1.0のとき括弧付き
+        self.assertEqual(tag1, tagdata_to_string(tag2))
+
 
 if __name__ == "__main__":
     unittest.main()
