@@ -1,12 +1,13 @@
 import os
 import json
+import decimal
 
 
-tag_category1 = [] 
-tag_category2 = []
+tag_category1 = {} 
+tag_category2 = {}
 
 
-def get_tag_category(version=1):
+def get_tag_category(version=1) -> dict:
     global tag_category1, tag_category2
     code_dir = os.path.dirname(os.path.realpath(__file__))
     if version == 1:
@@ -26,12 +27,12 @@ def format_category(categories: str) -> list:
 
 
 class TagData:
-    def __init__(self, tag, weight):
-        self.tag = tag
-        self.weight = weight
-        self.format = tag.lower().strip().replace(' ', '_')
-        self.format_escape = escape_tag_special_chars(self.format)
-        self.format_unescape = remove_escape(unescape_tag_special_chars(self.format_escape))
+    def __init__(self, tag:str, weight:float):
+        self.tag:str = tag
+        self.weight:decimal.Decimal = decimal.Decimal(str(round(weight, 3)))
+        self.format:str = tag.lower().strip().replace(' ', '_')
+        self.format_escape:str = escape_tag_special_chars(self.format)
+        self.format_unescape:str = remove_escape(unescape_tag_special_chars(self.format_escape))
     
     def get_categores(self):
         return get_tag_category(2).get(self.format_unescape, [])
@@ -59,7 +60,7 @@ class TagData:
 
         tag_text = unescape_tag_special_chars(tag_text)
         
-        if self.weight != 1.0:
+        if self.weight != decimal.Decimal("1.0"):
             return f"({tag_text}:{self.weight})"
         return tag_text
 
@@ -785,9 +786,9 @@ class TagEnhance:
         for i, tag in enumerate(tag_list):
             if tag in enhance_tag_list:
                 if add_strength:
-                    tag.weight += strength
+                    tag.weight += decimal.Decimal(str(round(strength, 3)))
                 else:
-                    tag.weight = strength
+                    tag.weight = decimal.Decimal(str(round(strength, 3)))
             result.append(tag)
         
         return (tagdata_to_string(result),)
@@ -824,9 +825,9 @@ class TagCategoryEnhance:
             tag_category = tag.get_categores()
             if tag_category and any(c in tag_category for c in categories):
                 if add_strength:
-                    tag.weight += strength
+                    tag.weight += decimal.Decimal(str(round(strength, 3)))
                 else:
-                    tag.weight = strength
+                    tag.weight = decimal.Decimal(str(round(strength, 3)))
             result.append(tag)
         
         return (tagdata_to_string(result),)

@@ -347,6 +347,21 @@ class TestTagNodes(unittest.TestCase):
         result_tags = te.tag(tag1, n9s.replace(' ', '_'), 0.5, False)[0]
         self.assertIn('(9s \\(nier\\:automata\\):0.5)', result_tags)
 
+        result_tags = te.tag(tag1, "1girl", 1.0, False)[0]
+        self.assertIn('1girl', result_tags)
+
+        result_tags = te.tag(tag1, "1girl", 1.1, False)[0]
+        self.assertIn('(1girl:1.1)', result_tags)
+
+        result_tags = te.tag(result_tags, "1girl", 0.1, True)[0]
+        self.assertIn('(1girl:1.2)', result_tags)
+
+        result_tags = te.tag(result_tags, "1girl", 0.1, True)[0]
+        self.assertIn('(1girl:1.3)', result_tags)
+
+        result_tags = te.tag(result_tags, "1girl", 0.1, True)[0]
+        self.assertIn('(1girl:1.4)', result_tags)
+
         tc = TagCategory()
         result_tags = tc.tag(tag1)[0]
         self.assertIn('character', result_tags)
