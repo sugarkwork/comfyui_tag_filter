@@ -246,6 +246,51 @@ class TagIf:
             return ("", "", "", else_output1, else_output2, else_output3, False)
 
 
+class TagFlag:
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "output_tags1": ("STRING", {"default": ""}),
+                "output_flag1": ("BOOLEAN", {"default": True}),
+            },
+            "optional": {
+                "output_tags2": ("STRING", {"default": ""}),
+                "output_flag2": ("BOOLEAN", {"default": True}),
+                "output_tags3": ("STRING", {"default": ""}),
+                "output_flag3": ("BOOLEAN", {"default": True}),
+                "output_tags4": ("STRING", {"default": ""}),
+                "output_flag4": ("BOOLEAN", {"default": True}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING","STRING","STRING","STRING","STRING")
+    RETURN_NAMES = ("output_tags1","output_tags2","output_tags3","output_tags4", "all_tags")
+
+    FUNCTION = "tag"
+
+    CATEGORY = "text"
+
+    OUTPUT_NODE = True
+
+    def tag(self, output_tags1:str="", output_flag1:bool=True, output_tags2:str="", output_flag2:bool=True, output_tags3:str="", output_flag3:bool=True, output_tags4:str="", output_flag4:bool=True):
+        result = ["", "", "", "", ""]
+        if output_flag1:
+            result[0] = output_tags1
+        if output_flag2:
+            result[1] = output_tags2    
+        if output_flag3:
+            result[2] = output_tags3
+        if output_flag4:
+            result[3] = output_tags4
+        
+        result[4] = tagdata_to_string(parse_tags(result[0]) + parse_tags(result[1]) + parse_tags(result[2]) + parse_tags(result[3]))
+
+        return tuple(result)
+
 
 class TagSwitcher:
     def __init__(self):
@@ -568,8 +613,8 @@ class TagSelector:
             },
         }
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("result",)
+    RETURN_TYPES = ("STRING", "BOOLEAN")
+    RETURN_NAMES = ("result", "found")
 
     FUNCTION = "tag"
 
@@ -625,7 +670,7 @@ class TagSelector:
                 else:
                     result.append(tag)
 
-        return (tagdata_to_string(result),)
+        return (tagdata_to_string(result), len(result) > 0)
 
 
 class TagComparator:

@@ -6,7 +6,8 @@ import json
 from nodes import (
     TagFilter, TagIf, TagSwitcher, TagMerger, TagSelector, 
     TagComparator, TagRemover, TagEnhance, TagCategoryEnhance, 
-    TagCategory, TagWildcardFilter, parse_tags, tagdata_to_string
+    TagCategory, TagWildcardFilter, parse_tags, tagdata_to_string,
+    TagFlag
 )
 
 
@@ -160,6 +161,7 @@ class TestTagNodes(unittest.TestCase):
             whitelist_only=True
         )
         self.assertEqual('(v:1.2), (sitting:1.5), (standing:0.5), attack', result[0])
+        self.assertTrue(result[1])
         
         # ホワイトリストなしでposeカテゴリを選択するテスト
         result = ts.tag(
@@ -168,6 +170,7 @@ class TestTagNodes(unittest.TestCase):
             whitelist_only=False
         )
         self.assertEqual('(v:1.2), (sitting:1.5), (standing:0.5), attack, original_tag', result[0])
+        self.assertTrue(result[1])
         
         # ホワイトリストありでposeカテゴリを除外するテスト
         result = ts.tag(
@@ -177,6 +180,7 @@ class TestTagNodes(unittest.TestCase):
             whitelist_only=True
         )
         self.assertEqual('school_uniform, (long hair:1.2), (1girl:1.2)', result[0])
+        self.assertTrue(result[1])
         
         # ホワイトリストなしでposeカテゴリを除外するテスト
         result = ts.tag(
@@ -186,6 +190,7 @@ class TestTagNodes(unittest.TestCase):
             whitelist_only=False
         )
         self.assertEqual('school_uniform, (long hair:1.2), (1girl:1.2), original_tag', result[0])
+        self.assertTrue(result[1])
         
         # フレキシブルフィルタありでhair_styleカテゴリを選択するテスト
         result = ts.tag(
@@ -196,6 +201,7 @@ class TestTagNodes(unittest.TestCase):
             flexible_filter=True
         )
         self.assertEqual('long hair, lovery twintails, white long twintails, (hoge short hair:1.5)', result[0])
+        self.assertTrue(result[1])
         
         # フレキシブルフィルタなしでhair styleカテゴリを選択するテスト
         result = ts.tag(
@@ -206,6 +212,7 @@ class TestTagNodes(unittest.TestCase):
             flexible_filter=False
         )
         self.assertEqual('long hair', result[0])
+        self.assertTrue(result[1])
         
         # フレキシブルフィルタありでhair_styleカテゴリを選択するテスト（ホワイトリストなし）
         result = ts.tag(
@@ -216,6 +223,7 @@ class TestTagNodes(unittest.TestCase):
             flexible_filter=True
         )
         self.assertEqual('long hair, lovery twintails, white long twintails, (hoge short hair:1.5)', result[0])
+        self.assertTrue(result[1])
         
         # フレキシブルフィルタありでhair_styleカテゴリを除外するテスト
         result = ts.tag(
@@ -226,6 +234,17 @@ class TestTagNodes(unittest.TestCase):
             flexible_filter=True
         )
         self.assertEqual('1girl, original tag x', result[0])
+        self.assertTrue(result[1])
+
+        result = ts.tag(
+            tags=self.hair_tags,
+            categorys="character", # not exist category
+            exclude=False,
+            whitelist_only=False,
+            flexible_filter=True
+        )
+        self.assertEqual('', result[0])
+        self.assertFalse(result[1])
 
     def test_tag_comparator(self):
         tc = TagComparator()
@@ -371,6 +390,47 @@ class TestTagNodes(unittest.TestCase):
         result_tags = tce.tag(tag1, 'character', 0.5, False)[0]
         self.assertIn('(2b_\\(nier:automata\\):0.5)', result_tags)
         self.assertIn('(9s \\(nier\\:automata\\):0.5)', result_tags)
+
+
+    def test_tag_flag(self):
+        tf = TagFlag()
+        
+        # タグのフラグを取得するテスト
+        result = tf.tag(output_tags1="1girl, 1boy", output_flag1=True, 
+                        output_tags2="2girls", output_flag2=False, 
+                        output_tags3="3girls", output_flag3=True, 
+                        output_tags4="4girls", output_flag4=False)
+        self.assertEqual(type(result), tuple)
+        self.assertEqual('1girl, 1boy', result[0])
+        self.assertEqual('', result[1])
+        self.assertEqual('3girls', result[2])
+        self.assertEqual('', result[3])
+        self.assertEqual('1girl, 1boy, 3girls', result[4])
+
+        result = tf.tag(output_tags1="1girl, 1boy", output_flag1=False, 
+                        output_tags2="2girls", output_flag2=False, 
+                        output_tags3="3girls", output_flag3=False, 
+                        output_tags4="4girls", output_flag4=False)
+        self.assertEqual('', result[4])
+
+        result = tf.tag(output_tags1="1girl, 1boy", output_flag1=True, 
+                        output_tags2="2girls", output_flag2=True, 
+                        output_tags3="3girls", output_flag3=True, 
+                        output_tags4="4girls", output_flag4=True)
+        self.assertEqual('1girl, 1boy, 2girls, 3girls, 4girls', result[4])
+
+        # no tag merge
+        result = tf.tag(output_tags1="1girl, 1boy", output_flag1=True, 
+                        output_tags2="1girl", output_flag2=True, 
+                        output_tags3="3girls", output_flag3=True, 
+                        output_tags4="4girls", output_flag4=True)
+        self.assertEqual('1girl, 1boy, 1girl, 3girls, 4girls', result[4])
+
+        result = tf.tag(output_tags1="(1girl:1.2), 1boy", output_flag1=True, 
+                        output_tags2="1girl", output_flag2=True, 
+                        output_tags3="3girls", output_flag3=True, 
+                        output_tags4="(4girls:1.5)", output_flag4=True)
+        self.assertEqual('(1girl:1.2), 1boy, 1girl, 3girls, (4girls:1.5)', result[4])
 
 
 if __name__ == "__main__":
