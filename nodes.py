@@ -935,14 +935,14 @@ class TagWildcardFilter:
             },
         }
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("tags",)
+    RETURN_TYPES = ("STRING", "BOOLEAN")
+    RETURN_NAMES = ("tags", "found")
 
     FUNCTION = "tag"
     CATEGORY = "text"
     OUTPUT_NODE = True
 
-    def tag(self, tags:str, wildcard:str):
+    def tag(self, tags:str, wildcard:str) -> tuple:
         if not tags or not wildcard:
             return (tags,)
         
@@ -966,7 +966,7 @@ class TagWildcardFilter:
                 if wildcard in tag.format_unescape:
                     result.append(tag)
         
-        return (tagdata_to_string(result),)
+        return (tagdata_to_string(result), len(result) > 0)
 
 
 NODE_CLASS_MAPPINGS = {

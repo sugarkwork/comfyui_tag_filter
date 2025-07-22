@@ -17,6 +17,7 @@ class TestTagNodes(unittest.TestCase):
         self.sample_tags = "school_uniform, (long hair, v:1.2), (sitting:1.5), (standing:0.5), attack, ((1girl)), original_tag"
         self.hair_tags = "1girl, long hair, lovery twintails, white long twintails, original tag x, (hoge short hair:1.5)"
         self.looking_tags = "(looking at viewer:1.2), looking back, looking back at viewer, looking at another, looking at camera"
+        self.wildcard_tags = "hair_ornament, long_hair, straight_hair, short hair, hair accessory, (medium hair:1.2), unknown_tag"
         self.custom_tags = self.looking_tags + ", " + self.sample_tags
 
     def test_tag_filter(self):
@@ -327,18 +328,40 @@ class TestTagNodes(unittest.TestCase):
         # ワイルドカード "long*" でフィルタするテスト
         result = twf.tag(tags=self.sample_tags, wildcard="long*")
         self.assertEqual('(long hair:1.2)', result[0])
+        self.assertTrue(result[1])
         
         # ワイルドカード "*uniform" でフィルタするテスト
         result = twf.tag(tags=self.sample_tags, wildcard="*uniform")
         self.assertEqual('school_uniform', result[0])
+        self.assertTrue(result[1])
         
         # ワイルドカード "looking *" でフィルタするテスト
         result = twf.tag(tags=self.custom_tags, wildcard="looking *")
         self.assertEqual(self.looking_tags, result[0])
+        self.assertTrue(result[1])
         
         # ワイルドカード "l*k" でフィルタするテスト
         result = twf.tag(tags=self.custom_tags, wildcard="l*k")
         self.assertEqual('looking back', result[0])
+        self.assertTrue(result[1])
+
+        result = twf.tag(tags=self.wildcard_tags, wildcard="*hair*")
+        self.assertEqual('hair_ornament, long_hair, straight_hair, short hair, hair accessory, (medium hair:1.2)', result[0])
+        self.assertTrue(result[1])
+
+        result = twf.tag(tags=self.wildcard_tags, wildcard="hair*")
+        self.assertEqual('hair_ornament, hair accessory', result[0])
+        self.assertTrue(result[1])
+
+        result = twf.tag(tags=self.wildcard_tags, wildcard="*hair")
+        self.assertEqual('long_hair, straight_hair, short hair, (medium hair:1.2)', result[0])
+        self.assertTrue(result[1])
+
+        result = twf.tag(tags=self.wildcard_tags, wildcard="*skirt")
+        self.assertFalse(result[1])
+
+        result = twf.tag(tags=self.wildcard_tags, wildcard="skirt*")
+        self.assertFalse(result[1])
 
     
     def test_parse_tags_escape(self):
