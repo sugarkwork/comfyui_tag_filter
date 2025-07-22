@@ -328,17 +328,17 @@ class TagFlagImage:
             output_image3 = None, output_flag3:bool=True, 
             output_image4 = None, output_flag4:bool=True):
         
-        result = [None, None, None, None, default_image]
-        if output_flag1:
+        result = [default_image, default_image, default_image, default_image, default_image]
+        if output_flag1 and output_image1:
             result[0] = output_image1
             result[4] = output_image1
-        if output_flag2:
+        if output_flag2 and output_image2:
             result[1] = output_image2 
             result[4] = output_image2   
-        if output_flag3:
+        if output_flag3 and output_image3:
             result[2] = output_image3
             result[4] = output_image3
-        if output_flag4:
+        if output_flag4 and output_image4:
             result[3] = output_image4
             result[4] = output_image4
 

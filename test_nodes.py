@@ -470,10 +470,12 @@ class TestTagNodes(unittest.TestCase):
         self.assertEqual(type(result), tuple)
         self.assertIsNotNone(result[0])
         self.assertEqual('image1', result[0])
-        self.assertIsNone(result[1])
+        self.assertIsNotNone(result[1])
+        self.assertEqual('default_image', result[1])
         self.assertIsNotNone(result[2])
         self.assertEqual('image3', result[2])
-        self.assertIsNone(result[3])
+        self.assertIsNotNone(result[3])
+        self.assertEqual('default_image', result[3])
         self.assertEqual('image3', result[4])
 
         result = tfi.tag(
@@ -486,9 +488,9 @@ class TestTagNodes(unittest.TestCase):
         self.assertEqual(type(result), tuple)
         self.assertIsNotNone(result[0])
         self.assertEqual('image1', result[0])
-        self.assertIsNone(result[1])
-        self.assertIsNone(result[2])
-        self.assertIsNone(result[3])
+        self.assertIsNotNone(result[1])
+        self.assertIsNotNone(result[2])
+        self.assertIsNotNone(result[3])
         self.assertEqual('image1', result[4])
 
         result = tfi.tag(
@@ -499,10 +501,10 @@ class TestTagNodes(unittest.TestCase):
             output_image4="image4", output_flag4=False)
         
         self.assertEqual(type(result), tuple)
-        self.assertIsNone(result[0])
-        self.assertIsNone(result[1])
-        self.assertIsNone(result[2])
-        self.assertIsNone(result[3])        
+        self.assertIsNotNone(result[0])
+        self.assertIsNotNone(result[1])
+        self.assertIsNotNone(result[2])
+        self.assertIsNotNone(result[3])        
         self.assertEqual('default_image', result[4])
 
 
