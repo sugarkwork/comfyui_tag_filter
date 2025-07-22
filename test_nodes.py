@@ -7,7 +7,7 @@ from nodes import (
     TagFilter, TagIf, TagSwitcher, TagMerger, TagSelector, 
     TagComparator, TagRemover, TagEnhance, TagCategoryEnhance, 
     TagCategory, TagWildcardFilter, parse_tags, tagdata_to_string,
-    TagFlag
+    TagFlag, TagFlagImage
 )
 
 
@@ -454,6 +454,56 @@ class TestTagNodes(unittest.TestCase):
                         output_tags3="3girls", output_flag3=True, 
                         output_tags4="(4girls:1.5)", output_flag4=True)
         self.assertEqual('(1girl:1.2), 1boy, 1girl, 3girls, (4girls:1.5)', result[4])
+
+
+    def test_tag_flag_image(self):
+        tfi = TagFlagImage()
+        
+        # タグのフラグを取得するテスト
+        result = tfi.tag(
+            default_image="default_image",
+            output_image1="image1", output_flag1=True, 
+            output_image2="image2", output_flag2=False, 
+            output_image3="image3", output_flag3=True, 
+            output_image4="image4", output_flag4=False)
+        
+        self.assertEqual(type(result), tuple)
+        self.assertIsNotNone(result[0])
+        self.assertEqual('image1', result[0])
+        self.assertIsNone(result[1])
+        self.assertIsNotNone(result[2])
+        self.assertEqual('image3', result[2])
+        self.assertIsNone(result[3])
+        self.assertEqual('image3', result[4])
+
+        result = tfi.tag(
+            default_image="default_image",
+            output_image1="image1", output_flag1=True, 
+            output_image2="image2", output_flag2=False, 
+            output_image3="image3", output_flag3=False, 
+            output_image4="image4", output_flag4=False)
+        
+        self.assertEqual(type(result), tuple)
+        self.assertIsNotNone(result[0])
+        self.assertEqual('image1', result[0])
+        self.assertIsNone(result[1])
+        self.assertIsNone(result[2])
+        self.assertIsNone(result[3])
+        self.assertEqual('image1', result[4])
+
+        result = tfi.tag(
+            default_image="default_image",
+            output_image1="image1", output_flag1=False, 
+            output_image2="image2", output_flag2=False, 
+            output_image3="image3", output_flag3=False, 
+            output_image4="image4", output_flag4=False)
+        
+        self.assertEqual(type(result), tuple)
+        self.assertIsNone(result[0])
+        self.assertIsNone(result[1])
+        self.assertIsNone(result[2])
+        self.assertIsNone(result[3])        
+        self.assertEqual('default_image', result[4])
 
 
 if __name__ == "__main__":

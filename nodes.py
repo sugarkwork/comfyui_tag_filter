@@ -292,6 +292,59 @@ class TagFlag:
         return tuple(result)
 
 
+class TagFlagImage:
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "optional": {
+                "default_image": ("IMAGE", ),
+                "output_image1": ("IMAGE", ),
+                "output_flag1": ("BOOLEAN", {"default": True}),
+                "output_image2": ("IMAGE", ),
+                "output_flag2": ("BOOLEAN", {"default": True}),
+                "output_image3": ("IMAGE", ),
+                "output_flag3": ("BOOLEAN", {"default": True}),
+                "output_image4": ("IMAGE", ),
+                "output_flag4": ("BOOLEAN", {"default": True}),
+            }
+        }
+    
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE")
+    RETURN_NAMES = ("output_image1", "output_image2", "output_image3", "output_image4", "any_one")
+
+    FUNCTION = "tag"
+
+    CATEGORY = "image"
+
+    OUTPUT_NODE = True
+
+    def tag(self, 
+            default_image = None,
+            output_image1 = None, output_flag1:bool=True, 
+            output_image2 = None, output_flag2:bool=True, 
+            output_image3 = None, output_flag3:bool=True, 
+            output_image4 = None, output_flag4:bool=True):
+        
+        result = [None, None, None, None, default_image]
+        if output_flag1:
+            result[0] = output_image1
+            result[4] = output_image1
+        if output_flag2:
+            result[1] = output_image2 
+            result[4] = output_image2   
+        if output_flag3:
+            result[2] = output_image3
+            result[4] = output_image3
+        if output_flag4:
+            result[3] = output_image4
+            result[4] = output_image4
+
+        return tuple(result)
+
+
 class TagSwitcher:
     def __init__(self):
         pass
@@ -984,6 +1037,8 @@ NODE_CLASS_MAPPINGS = {
     "TagWildcardFilter": TagWildcardFilter,
     "TagMerger4": TagMerger4,
     "TagMerger6": TagMerger6,
+    "TagFlag": TagFlag,
+    "TagFlagImage": TagFlagImage,
 }
 
 
@@ -1002,4 +1057,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagWildcardFilter": "TagWildcardFilter",
     "TagMerger4": "TagMerger4",
     "TagMerger6": "TagMerger6",
+    "TagFlag": "TagFlag",
+    "TagFlagImage": "TagFlagImage",
 }
