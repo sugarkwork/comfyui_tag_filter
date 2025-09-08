@@ -76,6 +76,8 @@ TagSwitcher では入力タグに基づいて、その物が画像内に含ま�
 
 TagCategoryEnhance は、タグの強度の調整の際にタグではなくタグのカテゴリを指定して、強度の追加あるいは置き換えを行います。
 
+TagEnhance の入力を二つとも同じにして、strength = 1.0, add_strength = false にすれば、(tag_name:1.2) のような、カッコを使った強調を全て外して tag_name だけにするような、強調外し処理も行えます。
+
 ![Image](https://github.com/user-attachments/assets/cdc18942-27a7-4864-8e13-1259cf84ac4a)
 
 # TagIf
