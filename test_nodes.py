@@ -513,14 +513,17 @@ class TestTagNodes(unittest.TestCase):
         trc = TagRandomCategory()
 
         result = trc.tag(
-            category="hair_style, eye_color",
+            category="hair_style, eye_color, celestial_body, sky",
+            negative_category="hair_accessory, nature",
             count=2
         )
-
+        
         tc = TagCategory()
         result_tags = tc.tag(result[0])[0]
         self.assertIn('hair_style', result_tags)
         self.assertIn('eye_color', result_tags)
+        self.assertNotIn('nature', result_tags)
+        self.assertNotIn('hair_accessory', result_tags)
 
 
 if __name__ == "__main__":

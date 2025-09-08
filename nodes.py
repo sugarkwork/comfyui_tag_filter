@@ -1034,6 +1034,7 @@ class TagRandomCategory:
         return {
             "required": {
                 "category": ("STRING", {"default": ""}),
+                "negative_category": ("STRING", {"default": ""}),
                 "count": ("INT", {"default": 1, "min": 1, "max": 100}),
             },
         }
@@ -1045,21 +1046,29 @@ class TagRandomCategory:
     CATEGORY = "text"
     OUTPUT_NODE = True
 
-    def tag(self, category:str, count:int=1) -> tuple:
+    def tag(self, category:str, negative_category:str, count:int=1) -> tuple:
         category_list = format_category(category)
+        negative_category_list = format_category(negative_category)
+        if not category_list:
+            return ("",)
         tag_category:Dict[str, List[str]] = get_tag_category(2)
 
         selected_tags = []
         for cat in category_list:
+            if not cat:
+                continue
+
             cat_select_tags = []
             for tag, cats in tag_category.items():
                 if cat in cats:
-                    cat_select_tags.append(tag)
+                    if negative_category_list and any(neg_cat in cats for neg_cat in negative_category_list):
+                        continue
+                    cat_select_tags.append(tag.replace("(", "\\(").replace(")", "\\)").replace(":", "\\:").replace(",", "\\,"))
 
             selected_tags += random.choices(cat_select_tags, k=count)
-        selected_tags = remove_duplicates(selected_tags)
+        selected_tags = remove_duplicates(parse_tags(", ".join(selected_tags)))
 
-        return (", ".join(selected_tags),)
+        return (tagdata_to_string(selected_tags),)
 
 
 NODE_CLASS_MAPPINGS = {
