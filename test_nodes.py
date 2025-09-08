@@ -506,6 +506,21 @@ class TestTagNodes(unittest.TestCase):
         self.assertIsNotNone(result[2])
         self.assertIsNotNone(result[3])        
         self.assertEqual('default_image', result[4])
+    
+
+    def test_tag_random_category(self):
+        from nodes import TagRandomCategory
+        trc = TagRandomCategory()
+
+        result = trc.tag(
+            category="hair_style, eye_color",
+            count=2
+        )
+
+        tc = TagCategory()
+        result_tags = tc.tag(result[0])[0]
+        self.assertIn('hair_style', result_tags)
+        self.assertIn('eye_color', result_tags)
 
 
 if __name__ == "__main__":

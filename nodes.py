@@ -1,10 +1,12 @@
 import os
 import json
 import decimal
+from typing import List, Dict
+import random
 
 
-tag_category1 = {} 
-tag_category2 = {}
+tag_category1: Dict[str, List[str]] = {}
+tag_category2: Dict[str, List[str]] = {}
 
 
 def get_tag_category(version=1) -> dict:
@@ -1022,6 +1024,44 @@ class TagWildcardFilter:
         return (tagdata_to_string(result), len(result) > 0)
 
 
+
+class TagRandomCategory:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "category": ("STRING", {"default": ""}),
+                "count": ("INT", {"default": 1, "min": 1, "max": 100}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("tags",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, category:str, count:int=1) -> tuple:
+        category_list = format_category(category)
+        tag_category:Dict[str, List[str]] = get_tag_category(2)
+
+        selected_tags = []
+        for cat in category_list:
+            cat_select_tags = []
+            for tag, cats in tag_category.items():
+                if cat in cats:
+                    cat_select_tags.append(tag)
+
+            selected_tags += random.choices(cat_select_tags, k=count)
+        selected_tags = remove_duplicates(selected_tags)
+
+        return (", ".join(selected_tags),)
+
+
 NODE_CLASS_MAPPINGS = {
     "TagSwitcher": TagSwitcher,
     "TagMerger": TagMerger,
@@ -1039,6 +1079,7 @@ NODE_CLASS_MAPPINGS = {
     "TagMerger6": TagMerger6,
     "TagFlag": TagFlag,
     "TagFlagImage": TagFlagImage,
+    "TagRandomCategory": TagRandomCategory,
 }
 
 
@@ -1059,4 +1100,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagMerger6": "TagMerger6",
     "TagFlag": "TagFlag",
     "TagFlagImage": "TagFlagImage",
+    "TagRandomCategory": "TagRandomCategory",
 }
