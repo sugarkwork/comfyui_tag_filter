@@ -1065,6 +1065,8 @@ class TagRandomCategory:
                         continue
                     cat_select_tags.append(tag.replace("(", "\\(").replace(")", "\\)").replace(":", "\\:").replace(",", "\\,"))
 
+            if not cat_select_tags:
+                continue
             selected_tags += random.choices(cat_select_tags, k=count)
         selected_tags = remove_duplicates(parse_tags(", ".join(selected_tags)))
 
