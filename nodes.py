@@ -3,6 +3,7 @@ import json
 import decimal
 from typing import List, Dict
 import random
+import math
 
 
 tag_category1: Dict[str, List[str]] = {}
@@ -1036,6 +1037,7 @@ class TagRandomCategory:
                 "category": ("STRING", {"default": ""}),
                 "negative_category": ("STRING", {"default": ""}),
                 "count": ("INT", {"default": 1, "min": 1, "max": 100}),
+                "seed": ("INT", {"default": 1234, "min": 0}),
             },
         }
 
@@ -1046,12 +1048,14 @@ class TagRandomCategory:
     CATEGORY = "text"
     OUTPUT_NODE = True
 
-    def tag(self, category:str, negative_category:str, count:int=1) -> tuple:
+    def tag(self, category:str, negative_category:str, count:int=1, seed:int=1234) -> tuple:
         category_list = format_category(category)
         negative_category_list = format_category(negative_category)
         if not category_list:
             return ("",)
         tag_category:Dict[str, List[str]] = get_tag_category(2)
+
+        
 
         selected_tags = []
         for cat in category_list:
@@ -1067,7 +1071,10 @@ class TagRandomCategory:
 
             if not cat_select_tags:
                 continue
-            selected_tags += random.choices(cat_select_tags, k=count)
+
+            myrand = random.Random(seed)
+            selected_tags += myrand.choices(cat_select_tags, k=count)
+
         selected_tags = remove_duplicates(parse_tags(", ".join(selected_tags)))
 
         return (tagdata_to_string(selected_tags),)
