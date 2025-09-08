@@ -115,3 +115,13 @@ anytag に True を指定すると、いずれかのタグが含まれる場合�
 
 ![image](https://github.com/user-attachments/assets/547a8895-79e6-445d-bcde-8cd638f571f0)
 
+# TagRandomCategory
+
+入力されたカテゴリから、ランダムに指定された個数のタグを選択して返します。
+
+これを使うと「何か小物が欲しい」や「何かロケーションの設定が欲しい」という時に、props や location カテゴリを指定することで、ランダムにそれらのタグを選択して返します。
+
+なお、構成要素すべてにこれを採用すると、意味の分からない画像が出来るので、それはそれで面白いかもしれません。
+
+<img width="2221" height="1278" alt="image" src="https://github.com/user-attachments/assets/cca6c142-db14-4969-983e-0c2b79932d55" />
+
