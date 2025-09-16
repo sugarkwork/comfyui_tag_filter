@@ -1080,6 +1080,161 @@ class TagRandomCategory:
         return (tagdata_to_string(selected_tags),)
 
 
+class TagPipeIn:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "optional": {
+                "key1": ("STRING", {"default": ""}),
+                "value1": ("STRING", {"default": ""}),
+                "key2": ("STRING", {"default": ""}),
+                "value2": ("STRING", {"default": ""}),
+                "key3": ("STRING", {"default": ""}),
+                "value3": ("STRING", {"default": ""}),
+                "key4": ("STRING", {"default": ""}),
+                "value4": ("STRING", {"default": ""}),
+                "key5": ("STRING", {"default": ""}),
+                "value5": ("STRING", {"default": ""}),
+                "key6": ("STRING", {"default": ""}),
+                "value6": ("STRING", {"default": ""}),
+            },
+        }
+
+    RETURN_TYPES = ("TAGSET",)
+    RETURN_NAMES = ("tagset",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, key1:str, value1:str, key2:str, value2:str, key3:str, value3:str, key4:str, value4:str, key5:str, value5:str, key6:str, value6:str) -> tuple:
+        tagsets = {}
+        tagsets[key1] = value1
+        tagsets[key2] = value2
+        tagsets[key3] = value3
+        tagsets[key4] = value4
+        tagsets[key5] = value5
+        tagsets[key6] = value6
+        return (tagsets,)
+
+
+class TagPipeOutOne:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tagsets": ("TAGSET",),
+                "key1": ("STRING", {"default": ""}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("value1",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tagsets:dict, key1:str) -> tuple:
+        return (
+            tagsets.get(key1, ""),
+            )
+
+
+class TagPipeOut:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tagsets": ("TAGSET",),
+                "key1": ("STRING", {"default": ""}),
+                "key2": ("STRING", {"default": ""}),
+                "key3": ("STRING", {"default": ""}),
+                "key4": ("STRING", {"default": ""}),
+                "key5": ("STRING", {"default": ""}),
+                "key6": ("STRING", {"default": ""}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING","STRING","STRING","STRING","STRING","STRING",)
+    RETURN_NAMES = ("value1","value2","value3","value4","value5","value6")
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tagsets:dict, key1:str, key2:str, key3:str, key4:str, key5:str, key6:str) -> tuple:
+        return (
+            tagsets.get(key1, ""),
+            tagsets.get(key2, ""),
+            tagsets.get(key3, ""),
+            tagsets.get(key4, ""),
+            tagsets.get(key5, ""),
+            tagsets.get(key6, ""),
+            )
+
+
+class TagPipeUpdate:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tagsets": ("TAGSET",),
+                "key": ("STRING", {"default": ""}),
+                "val": ("STRING", {"default": ""}),
+            },
+        }
+
+    RETURN_TYPES = ("TAGSET",)
+    RETURN_NAMES = ("tagsets",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tagsets:dict, key:str, val:str) -> tuple:
+        tagsets[key] = val
+        return (tagsets,)
+
+
+class TagPipeMerge:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tagsets1": ("TAGSET",),
+                "tagsets2": ("TAGSET",),
+            },
+        }
+
+    RETURN_TYPES = ("TAGSET",)
+    RETURN_NAMES = ("tagsets",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tagsets1:dict, tagsets2:dict) -> tuple:
+        result = tagsets1.copy()
+        result.update(tagsets2)
+        return (result,)
+
+
 NODE_CLASS_MAPPINGS = {
     "TagSwitcher": TagSwitcher,
     "TagMerger": TagMerger,
@@ -1098,6 +1253,9 @@ NODE_CLASS_MAPPINGS = {
     "TagFlag": TagFlag,
     "TagFlagImage": TagFlagImage,
     "TagRandomCategory": TagRandomCategory,
+    "TagPipeIn": TagPipeIn,
+    "TagPipeOut": TagPipeOut,
+    "TagPipeUpdate": TagPipeUpdate,
 }
 
 
@@ -1119,4 +1277,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagFlag": "TagFlag",
     "TagFlagImage": "TagFlagImage",
     "TagRandomCategory": "TagRandomCategory",
+    "TagPipeIn": "TagPipeIn",
+    "TagPipeOut": "TagPipeOut",
+    "TagPipeUpdate": "TagPipeUpdate",
 }

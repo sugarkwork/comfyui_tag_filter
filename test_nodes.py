@@ -526,5 +526,56 @@ class TestTagNodes(unittest.TestCase):
         self.assertNotIn('hair_accessory', result_tags)
 
 
+    def test_tag_pipe(self):
+        from nodes import TagPipeIn, TagPipeOut, TagPipeUpdate, TagPipeOutOne, TagPipeMerge
+        tpi = TagPipeIn()
+        result = tpi.tag(
+            key1="tag1", value1="value1",
+            key2="tag2", value2="value2",
+            key3="tag3", value3="value3",
+            key4="tag4", value4="value4",
+            key5="tag5", value5="value5",
+            key6="tag6", value6="value6"
+        )[0]
+        self.assertIn('tag1', result)
+        self.assertIn('tag2', result)
+        self.assertIn('tag3', result)
+        self.assertIn('tag4', result)
+        self.assertIn('tag5', result)
+        self.assertIn('tag6', result)
+
+        tpu = TagPipeUpdate()
+        pipe_data = tpu.tag(
+            tagsets=result,
+            key="tag1", val="new_value1",
+        )[0]
+
+        tpo = TagPipeOut()
+        result = tpo.tag(
+            tagsets=pipe_data,
+            key1="tag1",
+            key2="tag2",
+            key3="tag3",
+            key4="tag4",
+            key5="tag5",
+            key6="tag6"
+        )
+        self.assertEqual('new_value1', result[0])
+        self.assertEqual('value2', result[1])
+        self.assertEqual('value3', result[2])
+        self.assertEqual('value4', result[3])
+        self.assertEqual('value5', result[4])
+        self.assertEqual('value6', result[5])
+
+        tpo = TagPipeOutOne()
+        result = tpo.tag(pipe_data, key1="tag1")
+        self.assertEqual('new_value1', result[0])
+
+        tpm = TagPipeMerge()
+        pipe_data2 = tpm.tag(pipe_data, {"key1": "tag1"})[0]
+        self.assertIn('tag1', pipe_data2)
+        self.assertIn('tag2', pipe_data2)
+        self.assertEqual('tag1', pipe_data2['key1'])
+
 if __name__ == "__main__":
     unittest.main()
