@@ -295,6 +295,35 @@ class TagFlag:
         return tuple(result)
 
 
+class TagRandom:
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tags": ("STRING", {"default": ""}),
+                "count_min": ("INT", {"default": 1, "min": 1}),
+                "count_max": ("INT", {"default": 1, "min": 1}),
+            }
+        }
+    
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("tags",)
+    
+    FUNCTION = "tag"
+    
+    CATEGORY = "text"
+    
+    def tag(self, tags:str="", count_min:int=1, count_max:int=1):
+        tags = parse_tags(tags)
+        random.shuffle(tags)
+        if count_min > count_max:
+            count_min, count_max = count_max, count_min 
+        return (tagdata_to_string(tags[:random.randint(count_min, count_max)]),)
+
+
 class TagFlagImage:
     def __init__(self):
         pass
@@ -1256,6 +1285,8 @@ NODE_CLASS_MAPPINGS = {
     "TagPipeIn": TagPipeIn,
     "TagPipeOut": TagPipeOut,
     "TagPipeUpdate": TagPipeUpdate,
+    "TagRandom": TagRandom,
+    "TagPipeOutOne": TagPipeOutOne,
 }
 
 
@@ -1280,4 +1311,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagPipeIn": "TagPipeIn",
     "TagPipeOut": "TagPipeOut",
     "TagPipeUpdate": "TagPipeUpdate",
+    "TagRandom": "TagRandom",
+    "TagPipeOutOne": "TagPipeOutOne",
 }

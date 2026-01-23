@@ -7,7 +7,7 @@ from nodes import (
     TagFilter, TagIf, TagSwitcher, TagMerger, TagSelector, 
     TagComparator, TagRemover, TagEnhance, TagCategoryEnhance, 
     TagCategory, TagWildcardFilter, parse_tags, tagdata_to_string,
-    TagFlag, TagFlagImage
+    TagFlag, TagFlagImage, TagRandom
 )
 
 
@@ -544,6 +544,7 @@ class TestTagNodes(unittest.TestCase):
         self.assertIn('tag5', result)
         self.assertIn('tag6', result)
 
+
         tpu = TagPipeUpdate()
         pipe_data = tpu.tag(
             tagsets=result,
@@ -576,6 +577,31 @@ class TestTagNodes(unittest.TestCase):
         self.assertIn('tag1', pipe_data2)
         self.assertIn('tag2', pipe_data2)
         self.assertEqual('tag1', pipe_data2['key1'])
+
+    def test_tag_random(self):
+        tr = TagRandom()
+
+        for _ in range(20):
+            result = tr.tag(
+                tags=self.sample_tags,
+                count_min=2,
+                count_max=4
+            )
+
+            tags = parse_tags(result[0])
+            self.assertTrue(len(tags) >= 2)
+            self.assertTrue(len(tags) <= 4)
+
+        for _ in range(20):
+            result = tr.tag(
+                tags=self.sample_tags,
+                count_min=5,
+                count_max=1
+            )
+
+            tags = parse_tags(result[0])
+            self.assertTrue(len(tags) >= 1)
+            self.assertTrue(len(tags) <= 5)
 
 if __name__ == "__main__":
     unittest.main()
