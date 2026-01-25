@@ -306,6 +306,7 @@ class TagRandom:
                 "tags": ("STRING", {"default": ""}),
                 "count_min": ("INT", {"default": 1, "min": 1}),
                 "count_max": ("INT", {"default": 1, "min": 1}),
+                "seed": ("INT", {"default": 1234, "min": 0}),
             }
         }
     
@@ -316,12 +317,13 @@ class TagRandom:
     
     CATEGORY = "text"
     
-    def tag(self, tags:str="", count_min:int=1, count_max:int=1):
-        tags = parse_tags(tags)
-        random.shuffle(tags)
+    def tag(self, tags:str="", count_min:int=1, count_max:int=1, seed:int=1234):
+        myrand = random.Random(seed)
+        tag_list = parse_tags(tags)
+        myrand.shuffle(tag_list)
         if count_min > count_max:
             count_min, count_max = count_max, count_min 
-        return (tagdata_to_string(tags[:random.randint(count_min, count_max)]),)
+        return (tagdata_to_string(tag_list[:myrand.randint(count_min, count_max)]),)
 
 
 class TagFlagImage:

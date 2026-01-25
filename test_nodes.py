@@ -603,5 +603,29 @@ class TestTagNodes(unittest.TestCase):
             self.assertTrue(len(tags) >= 1)
             self.assertTrue(len(tags) <= 5)
 
+        for _ in range(20):
+            result = tr.tag(
+                tags=self.sample_tags,
+                count_min=2,
+                count_max=4,
+                seed=1234
+            )
+
+            tags = parse_tags(result[0])
+            self.assertTrue(len(tags) >= 2)
+            self.assertTrue(len(tags) <= 4)
+
+        for _ in range(20):
+            result = tr.tag(
+                tags=self.sample_tags,
+                count_min=5,
+                count_max=1,
+                seed=1234
+            )
+
+            tags = parse_tags(result[0])
+            self.assertTrue(len(tags) >= 1)
+            self.assertTrue(len(tags) <= 5)
+
 if __name__ == "__main__":
     unittest.main()
