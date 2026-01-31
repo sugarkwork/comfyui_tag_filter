@@ -1352,6 +1352,7 @@ NODE_CLASS_MAPPINGS = {
     "TagPipeUpdate": TagPipeUpdate,
     "TagRandom": TagRandom,
     "TagPipeOutOne": TagPipeOutOne,
+    "TagDetector": TagDetector,
 }
 
 
@@ -1377,5 +1378,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagPipeOut": "TagPipeOut",
     "TagPipeUpdate": "TagPipeUpdate",
     "TagRandom": "TagRandom",
-    "TagPipeOutOne": "TagPipeOutOne",
+    "TagPipeOutOne": "TagPipeOutOne", 
+    "TagDetector": "TagDetector",
 }
