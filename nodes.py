@@ -1266,6 +1266,69 @@ class TagPipeMerge:
         return (result,)
 
 
+class TagDetector:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tags": ("STRING", {"default": ""}),
+                "max_join": ("INT", {"default": 4}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("tags",)
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tags:str, max_join:int=4) -> tuple:
+        keys = ["_", "-", ";", "|", "&", "*", "?", "!", "@", "#", "$", "%", "^", "(`)", "( )", "(,)", "(" , ")", "[", "]", "{", "}", "<", ">", "/", "\\", "`", "\n", "\r", "\t"]
+
+        def split_tags(target:str, mykey:str, result:set):
+            if not target:
+                return
+            mysplits = target.split(mykey)
+            for mysplit in mysplits:
+                mysplit = mysplit.strip()
+                if not mysplit:
+                    continue
+                key_in = False
+                for key in keys:
+                    if key in mysplit:
+                        split_tags(mysplit, key, result)
+                        key_in = True
+
+                if not key_in:
+                    if mysplit not in result:
+                        result.append(mysplit)
+
+        result = []
+        
+        split_tags(tags, " ", result)
+
+        merge_tags = []
+        for i in range(len(result)):
+            for j in range(max_join):
+                merge_tag = "_".join(result[i:i+j+1])
+                if merge_tag not in merge_tags:
+                    merge_tags.append(merge_tag)
+
+
+        tag_category = get_tag_category(2)
+
+        result_tags = []
+        for tag in merge_tags:
+            if tag in tag_category:
+                result_tags.append(tag)
+
+        return (tagdata_to_string(parse_tags(",".join(result_tags))),)
+
+
 NODE_CLASS_MAPPINGS = {
     "TagSwitcher": TagSwitcher,
     "TagMerger": TagMerger,

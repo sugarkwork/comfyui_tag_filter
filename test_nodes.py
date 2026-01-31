@@ -7,7 +7,7 @@ from nodes import (
     TagFilter, TagIf, TagSwitcher, TagMerger, TagSelector, 
     TagComparator, TagRemover, TagEnhance, TagCategoryEnhance, 
     TagCategory, TagWildcardFilter, parse_tags, tagdata_to_string,
-    TagFlag, TagFlagImage, TagRandom
+    TagFlag, TagFlagImage, TagRandom, TagDetector
 )
 
 
@@ -626,6 +626,27 @@ class TestTagNodes(unittest.TestCase):
             tags = parse_tags(result[0])
             self.assertTrue(len(tags) >= 1)
             self.assertTrue(len(tags) <= 5)
+    
+    def test_tag_detector(self):
+        test_data = """
+?
+1girl 7.4M
+?
+blue eyes 2.2M
+?
+blush 3.6M
+?
+breasts 4.3M
+"""
+
+        td = TagDetector()
+
+        result = td.tag(
+            tags=test_data
+        )[0]
+
+        self.assertEqual('1girl, blue_eyes, blush, breasts', result)
+
 
 if __name__ == "__main__":
     unittest.main()
