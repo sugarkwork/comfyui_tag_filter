@@ -1287,7 +1287,7 @@ class TagDetector:
     OUTPUT_NODE = True
 
     def tag(self, tags:str, max_join:int=4) -> tuple:
-        keys = ["_", "-", ";", "|", "&", "*", "?", "!", "@", "#", "$", "%", "^", "(`)", "( )", "(,)", "(" , ")", "[", "]", "{", "}", "<", ">", "/", "\\", "`", "\n", "\r", "\t"]
+        keys = ["_", ";", "|", "&", "*", "?", "!", "@", "#", "$", "%", "^", "(", ")", "[", "]", "{", "}", "<", ">", "/", "\\", "`", "\n", "\r", "\t"]
 
         def split_tags(target:str, mykey:str, result:set):
             if not target:
