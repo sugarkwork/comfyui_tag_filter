@@ -127,3 +127,13 @@ anytag に True を指定すると、いずれかのタグが含まれる場合�
 
 <img width="2221" height="1278" alt="image" src="https://github.com/user-attachments/assets/cca6c142-db14-4969-983e-0c2b79932d55" />
 
+# TagDetector
+
+任意の文字列の中から、タグっぽい文字列を自動的に検出します。
+
+検出に失敗する事もあります。
+
+max_join には、そのタグが、最大で何単語で構成されているかを指定します。
+
+<img width="1451" height="1148" alt="image" src="https://github.com/user-attachments/assets/ea2e6173-37fd-4585-917d-b3234b9cce6b" />
+
