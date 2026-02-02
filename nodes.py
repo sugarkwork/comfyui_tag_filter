@@ -8,21 +8,27 @@ import math
 
 tag_category1: Dict[str, List[str]] = {}
 tag_category2: Dict[str, List[str]] = {}
+tag_category3: Dict[str, List[str]] = {}
 
 
-def get_tag_category(version=1) -> dict:
-    global tag_category1, tag_category2
+def get_tag_category(version=3) -> dict:
+    global tag_category1, tag_category2, tag_category3
     code_dir = os.path.dirname(os.path.realpath(__file__))
     if version == 1:
         if not tag_category1:
             with open(os.path.join(code_dir, "tag_category.json"), encoding="utf-8-sig") as f: # file encoding is utf-8
                 tag_category1 = json.load(f)
         return tag_category1
-    else:
+    elif version == 2:
         if not tag_category2:
             with open(os.path.join(code_dir, "tag_category_v2.json"), encoding="utf-8-sig") as f: # file encoding is utf-8
                 tag_category2 = json.load(f)
         return tag_category2
+    else:
+        if not tag_category3:
+            with open(os.path.join(code_dir, "tag_category_v3.json"), encoding="utf-8-sig") as f: # file encoding is utf-8
+                tag_category3 = json.load(f)
+        return tag_category3
 
 
 def format_category(categories: str) -> list:
@@ -38,7 +44,7 @@ class TagData:
         self.format_unescape:str = remove_escape(unescape_tag_special_chars(self.format_escape))
     
     def get_categores(self):
-        return get_tag_category(2).get(self.format_unescape, [])
+        return get_tag_category().get(self.format_unescape, [])
     
     def __str__(self):
         return self.format
@@ -612,7 +618,7 @@ class TagReplace:
 
     def _get_categories(self, tag: str) -> set:
         """タグのカテゴリーを取得する"""
-        tag_category = get_tag_category(2)
+        tag_category = get_tag_category()
         return set(tag_category.get(tag, []))
 
     def _category_match_percentage(self, categories1: set, categories2: set) -> float:
@@ -711,7 +717,7 @@ class TagSelector:
 
     def tag(self, tags:str, categorys:str, exclude:bool=False, whitelist_only:bool=False, flexible_filter:bool=False):
         tag_list = parse_tags(tags)
-        tag_category = get_tag_category(2)
+        tag_category = get_tag_category()
         target_category = format_category(categorys)
 
         result = []
@@ -859,7 +865,7 @@ class TagFilter:
         tag_list = parse_tags(tags)
 
         result = []
-        tag_category = get_tag_category(2)
+        tag_category = get_tag_category()
 
         for i, tag in enumerate(tag_list):
             tag_text = tag.format_unescape
@@ -989,7 +995,7 @@ class TagCategory:
             return ("",)
 
         tag_list = parse_tags(tags)
-        tag_category = get_tag_category(2)
+        tag_category = get_tag_category()
         
         result = []
         for tag in tag_list:
@@ -1084,7 +1090,7 @@ class TagRandomCategory:
         negative_category_list = format_category(negative_category)
         if not category_list:
             return ("",)
-        tag_category:Dict[str, List[str]] = get_tag_category(2)
+        tag_category:Dict[str, List[str]] = get_tag_category()
 
         
 
@@ -1236,8 +1242,9 @@ class TagPipeUpdate:
     OUTPUT_NODE = True
 
     def tag(self, tagsets:dict, key:str, val:str) -> tuple:
-        tagsets[key] = val
-        return (tagsets,)
+        tagsets_copy = tagsets.copy()
+        tagsets_copy[key] = val
+        return (tagsets_copy,)
 
 
 class TagPipeMerge:
@@ -1319,7 +1326,7 @@ class TagDetector:
                     merge_tags.append(merge_tag)
 
 
-        tag_category = get_tag_category(2)
+        tag_category = get_tag_category()
 
         result_tags = []
         for tag in merge_tags:
