@@ -7,7 +7,7 @@ from nodes import (
     TagFilter, TagIf, TagSwitcher, TagMerger, TagSelector, 
     TagComparator, TagRemover, TagEnhance, TagCategoryEnhance, 
     TagCategory, TagWildcardFilter, parse_tags, tagdata_to_string,
-    TagFlag, TagFlagImage, TagRandom, TagDetector
+    TagFlag, TagFlagImage, TagRandom, TagDetector, TagEmpty
 )
 
 
@@ -646,6 +646,26 @@ breasts 4.3M
         )[0]
 
         self.assertEqual('1girl, blue_eyes, blush, breasts', result)
+
+
+    def test_tag_empty(self):
+        te = TagEmpty()
+
+        result = te.tag(
+            tags="",
+            alt_tags="1girl"
+        )
+
+        self.assertEqual('1girl', result[0])
+        self.assertEqual(True, result[1])
+
+        result = te.tag(
+            tags="2girls",
+            alt_tags=""
+        )
+
+        self.assertEqual('2girls', result[0])
+        self.assertEqual(False, result[1])
 
 
 if __name__ == "__main__":

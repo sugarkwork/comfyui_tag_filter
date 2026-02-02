@@ -1329,6 +1329,34 @@ class TagDetector:
         return (tagdata_to_string(parse_tags(",".join(result_tags))),)
 
 
+class TagEmpty:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tags": ("STRING", {"default": ""}),
+                "alt_tags": ("STRING", {"default": ""}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING","BOOLEAN")
+    RETURN_NAMES = ("tags","empty")
+
+    FUNCTION = "tag"
+    CATEGORY = "text"
+    OUTPUT_NODE = True
+
+    def tag(self, tags:str, alt_tags:str) -> tuple:
+        tag_list = parse_tags(tags)
+        alt_tag_list = parse_tags(alt_tags)
+        if len(tag_list) <= 0:
+            return (tagdata_to_string(alt_tag_list), True)
+        return (tagdata_to_string(tag_list), False)
+
+
 NODE_CLASS_MAPPINGS = {
     "TagSwitcher": TagSwitcher,
     "TagMerger": TagMerger,
@@ -1353,6 +1381,7 @@ NODE_CLASS_MAPPINGS = {
     "TagRandom": TagRandom,
     "TagPipeOutOne": TagPipeOutOne,
     "TagDetector": TagDetector,
+    "TagEmpty": TagEmpty,
 }
 
 
@@ -1380,4 +1409,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagRandom": "TagRandom",
     "TagPipeOutOne": "TagPipeOutOne", 
     "TagDetector": "TagDetector",
+    "TagEmpty": "TagEmpty",
 }
