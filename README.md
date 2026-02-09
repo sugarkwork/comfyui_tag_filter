@@ -137,3 +137,14 @@ max_join には、そのタグが、最大で何単語で構成されている�
 
 <img width="1451" height="1148" alt="image" src="https://github.com/user-attachments/assets/ea2e6173-37fd-4585-917d-b3234b9cce6b" />
 
+# TagColorChanger
+
+入力されたタグのカラーをランダムに変更します。
+
+実験的な実装なので、意図しない変換が起きるかもしれないので、お遊びの範囲内で使ってください。
+
+強調指示もそのまま使われます。
+
+シードをランダムにすると、キャラクターのランダムなカラーバリエーションが作れます。
+
+<img width="1352" height="1001" alt="image" src="https://github.com/user-attachments/assets/6fc914ac-27ce-44c2-a4c8-057072a76331" />
