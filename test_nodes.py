@@ -7,7 +7,7 @@ from nodes import (
     TagFilter, TagIf, TagSwitcher, TagMerger, TagSelector, 
     TagComparator, TagRemover, TagEnhance, TagCategoryEnhance, 
     TagCategory, TagWildcardFilter, parse_tags, tagdata_to_string,
-    TagFlag, TagFlagImage, TagRandom, TagDetector, TagEmpty
+    TagFlag, TagFlagImage, TagRandom, TagDetector, TagEmpty, TagColorChanger
 )
 
 
@@ -666,6 +666,24 @@ breasts 4.3M
 
         self.assertEqual('2girls', result[0])
         self.assertEqual(False, result[1])
+    
+
+    def test_tag_color_changer(self):
+        tcc = TagColorChanger()
+
+        result = tcc.tag(
+            tags="1girl, sitting, red_hair, blue_eyes, white_skin, green_kimono",
+            skin="warm",
+            hair="warm",
+            eyes="warm",
+            clothing="warm",
+            accessories="warm",
+            background="warm",
+            other="warm",
+            seed=12345
+        )
+
+        self.assertEqual('1girl, sitting, light_rose_hair, beige_eyes, light_bronze_skin, light_maroon_kimono', result[0])
 
 
 if __name__ == "__main__":

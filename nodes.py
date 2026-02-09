@@ -255,6 +255,143 @@ class TagIf:
             return ("", "", "", else_output1, else_output2, else_output3, False)
 
 
+class TagColorChanger:
+    def __init__(self):
+        self.warm_colors = []
+        self.cool_colors = []
+        self.neutral_colors = []
+        self.all_colors = []
+        self.warm_dark = []
+        self.warm_light = []
+        self.cool_dark = []
+        self.cool_light = []
+        self.neutral_dark = []
+        self.neutral_light = []
+        self.dark_color = []
+        self.light_color = []
+        self.init_colors()
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "tags": ("STRING", ),
+                "skin": (['skip', 'warm', "cool", "neutral", "all"],),
+                "hair": (['skip', 'warm', "cool", "neutral", "all"],),
+                "eyes": (['skip', 'warm', "cool", "neutral", "all"],),
+                "clothing": (['skip', 'warm', "cool", "neutral", "all"],),
+                "accessories": (['skip', 'warm', "cool", "neutral", "all"],),
+                "background": (['skip', 'warm', "cool", "neutral", "all"],),
+                "other": (['skip', 'warm', "cool", "neutral", "all"],),
+                "seed": ("INT", {"default": 0}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("output",)
+
+    FUNCTION = "tag"
+
+    CATEGORY = "string"
+
+    OUTPUT_NODE = True
+
+
+    def init_colors(self):
+        # 暖色系 (Warm Colors)
+        self.warm_colors = [
+            'red', 'yellow', 'orange', 'pink', 'brown', 'gold', 'maroon', 'beige', 
+            'ivory', 'coral', 'salmon', 'khaki', 'crimson', 'chocolate', 'tan', 
+            'wheat', 'peach', 'ruby', 'amber', 'bronze', 'cream', 'ochre', 
+            'sepia', 'rose', 'rust'
+        ]
+
+        # 寒色系 (Cool Colors)
+        self.cool_colors = [
+            'blue', 'green', 'purple', 'cyan', 'magenta', 'lime', 'teal', 
+            'indigo', 'violet', 'navy', 'aqua', 'turquoise', 'lavender', 
+            'plum', 'azure', 'mint', 'emerald', 'sapphire', 'lilac', 'mauve',
+            'olive' # Olive is technically yellow-green but often grouped with greens or earth tones. here put in cool/green family or move to warm if preferred.
+        ]
+
+        # 無彩色 (Neutral Colors)
+        self.neutral_colors = [
+            'white', 'black', 'gray', 'silver'
+        ]
+
+        # 各カテゴリの dark_, light_ リストを生成
+        self.warm_dark = [f"dark_{c}" for c in self.warm_colors]
+        self.warm_light = [f"light_{c}" for c in self.warm_colors]
+
+        self.cool_dark = [f"dark_{c}" for c in self.cool_colors]
+        self.cool_light = [f"light_{c}" for c in self.cool_colors]
+
+        self.neutral_dark = [f"dark_{c}" for c in self.neutral_colors]
+        self.neutral_light = [f"light_{c}" for c in self.neutral_colors]
+
+        # 全体の dark_, light_
+        self.dark_color = [f"dark_{c}" for c in self.all_colors]
+        self.light_color = [f"light_{c}" for c in self.all_colors]
+
+        # リストの重複を除去・ソート
+        self.warm_colors = sorted(list(set(self.warm_colors + self.warm_dark + self.warm_light)))
+        self.cool_colors = sorted(list(set(self.cool_colors + self.cool_dark + self.cool_light)))
+        self.neutral_colors = sorted(list(set(self.neutral_colors + self.neutral_dark + self.neutral_light)))
+        self.all_colors = sorted(list(set(self.warm_colors + self.cool_colors + self.neutral_colors)))
+
+    
+    def choice_color(self, category:str, myrand:random):
+        if category == 'skip':
+            return ''
+        if category == 'warm':
+            return myrand.choice(self.warm_colors)
+        if category == 'cool':
+            return myrand.choice(self.cool_colors)
+        if category == 'neutral':
+            return myrand.choice(self.neutral_colors)
+        if category == 'all':
+            return myrand.choice(self.all_colors)
+
+
+    def tag(self, tags:str, skin:str='skip', hair:str='skip', eyes:str='skip', clothing:str='skip', accessories:str='skip', background:str='skip', other:str='skip', seed:int=0):
+        tags = parse_tags(tags)
+
+        myrand = random.Random(seed)
+
+        replaced_tags = []
+
+        for tag in tags:
+            tag_category = tag.get_categores()
+            if 'skin_color' in tag_category and skin != 'skip':
+                tag = TagData(self.choice_color(skin, myrand) + "_skin", tag.weight)
+            elif 'hair_color' in tag_category and hair != 'skip':
+                tag = TagData(self.choice_color(hair, myrand) + "_hair", tag.weight)
+            elif 'eye_color' in tag_category and eyes != 'skip':
+                tag = TagData(self.choice_color(eyes, myrand) + "_eyes", tag.weight)
+            elif 'clothing_color' in tag_category and clothing != 'skip':
+                tag = TagData(self.choice_color(clothing, myrand) + "_clothing", tag.weight)
+            elif 'accessories_color' in tag_category and accessories != 'skip':
+                tag = TagData(self.choice_color(accessories, myrand) + "_accessories", tag.weight)
+            elif 'background_color' in tag_category and background != 'skip':
+                tag = TagData(self.choice_color(background, myrand) + "_background", tag.weight)
+            elif other != 'skip':
+                split_tag = tag.format.split("_", 1)
+                tag_color = split_tag[0]
+                if len(split_tag) > 1:
+                    tag_attr = "_" + split_tag[1]
+                else:
+                    tag_attr = ""
+
+                if tag_color in self.all_colors:
+                    tag = TagData(self.choice_color(other, myrand) + tag_attr, tag.weight)
+
+            replaced_tags.append(tag)
+
+        return (tagdata_to_string(replaced_tags),)
+
+
+
+
 class TagFlag:
     def __init__(self):
         pass
@@ -1389,6 +1526,7 @@ NODE_CLASS_MAPPINGS = {
     "TagPipeOutOne": TagPipeOutOne,
     "TagDetector": TagDetector,
     "TagEmpty": TagEmpty,
+    "TagColorChanger": TagColorChanger,
 }
 
 
@@ -1417,4 +1555,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TagPipeOutOne": "TagPipeOutOne", 
     "TagDetector": "TagDetector",
     "TagEmpty": "TagEmpty",
+    "TagColorChanger": "TagColorChanger",
 }
