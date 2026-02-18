@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 import decimal
 from typing import List, Dict
 import random
@@ -283,7 +284,7 @@ class TagColorChanger:
                 "accessories": (['skip', 'warm', "cool", "neutral", "all"],),
                 "background": (['skip', 'warm', "cool", "neutral", "all"],),
                 "other": (['skip', 'warm', "cool", "neutral", "all"],),
-                "seed": ("INT", {"default": 0}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": sys.maxsize}),
             },
         }
 
@@ -449,7 +450,7 @@ class TagRandom:
                 "tags": ("STRING", {"default": ""}),
                 "count_min": ("INT", {"default": 1, "min": 1}),
                 "count_max": ("INT", {"default": 1, "min": 1}),
-                "seed": ("INT", {"default": 1234, "min": 0}),
+                "seed": ("INT", {"default": 1234, "min": 0, "max": sys.maxsize}),
             }
         }
     
@@ -1211,7 +1212,7 @@ class TagRandomCategory:
                 "category": ("STRING", {"default": ""}),
                 "negative_category": ("STRING", {"default": ""}),
                 "count": ("INT", {"default": 1, "min": 1, "max": 100}),
-                "seed": ("INT", {"default": 1234, "min": 0}),
+                "seed": ("INT", {"default": 1234, "min": 0, "max": sys.maxsize}),
             },
         }
 
